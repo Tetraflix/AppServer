@@ -27,7 +27,6 @@ movieDb
 const Movie = movieDb.define('movie', {
   id: {
     type: Sequelize.INTEGER,
-    primaryKey: true,
     autoIncrement: true,
   },
   title: {
@@ -35,6 +34,7 @@ const Movie = movieDb.define('movie', {
   },
   views: {
     type: Sequelize.INTEGER,
+    defaultValue: 0,
   },
   profile: {
     type: Sequelize.JSON,
@@ -55,3 +55,14 @@ const Stats = movieDb.define('stats', {
     defaultValue: 0,
   },
 });
+
+Movie.sync()
+  .then(() => Stats.sync())
+  .catch(error => console.log('error syncing data', error));
+
+Module.exports = {
+  Sequelize,
+  movieDB,
+  Movie,
+  Stats,
+};
