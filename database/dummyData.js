@@ -76,8 +76,11 @@ function generateString() {
 
 
 // Add movies to movie database
+function addDummyData() {
+  movies.Movie.create({
+    title: generateString(),
+    profile: assignProfileValues(),
+  });
+}
 
-movies.Movie.create({
-  title: generateString(),
-  profile: assignProfileValues(),
-});
+module.exports = addDummyData;

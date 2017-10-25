@@ -1,4 +1,6 @@
 const express = require('express');
+const dummyData = require('../database/dummyData.js');
+
 const app = express();
 
 app.get('/', (req, res) => {
@@ -22,17 +24,18 @@ app.get('/tetraflix/recommendations/:user', (req, res) => {
 });
 
 app.get('/tetraflix/genre/:genre', (req, res) => {
-  // possible genres: Action, Animation, Comedy, Documentary, Drama,
-  // Family, Fantasy, Foreign, Horror, Musical, Mystery,
-  // Romance, Science Fiction, Thriller, Western
-
   // genre recs are not user-specific
   const genre = req.params.genre;
 
   // look up recs by genre
   // something like: queryResult = findOne({ where: { genre: genre } });
-  
+
   // very simplified result; actual will contain 20 movie objects
   const queryResult = '"{"genre":[{"id":34532,"title":"Spider Man","profile":{"action":80,"comedy":20},"progress":0},{"id":567490,"title":"Star Wars","profile":{"action":70,"fantasy":30},"progress":0}]}"';
   res.send(queryResult);
+});
+
+app.get('/tetraflix/dummyData', (req, res) => {
+  dummyData();
+  res.send('done');
 });

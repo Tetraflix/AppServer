@@ -11,6 +11,7 @@ if (process.env.DATABASE_URL) {
     username: credentials.username,
     password: credentials.password,
     dialect: 'postgres',
+    logging: false,
   });
 }
 
@@ -27,6 +28,7 @@ movieDb
 const Movie = movieDb.define('movie', {
   id: {
     type: Sequelize.INTEGER,
+    primaryKey: true,
     autoIncrement: true,
   },
   title: {
@@ -48,7 +50,7 @@ const Stats = movieDb.define('stats', {
     type: Sequelize.STRING,
   },
   createdAt: {
-    type: Sequelize.DATEONLY,
+    type: Sequelize.DATE,
   },
   totalDayViews: {
     type: Sequelize.INTEGER,
@@ -56,13 +58,17 @@ const Stats = movieDb.define('stats', {
   },
 });
 
-Movie.sync()
+Movie.sync({ force: true })
   .then(() => Stats.sync())
+  .then(() => (
+    Movie.create({
+      title: 'abcaiuhfgkaj',
+      profile: '{"action":11,"animation":7,"comedy":6,"documentary":6,"drama":7,"family":8,"fantasy":5,"international":12,"horror":7,"musical":6,"mystery":0,"romance":12,"sci_fi":8,"thriller":0,"western":5}',
+    })
+  ))
   .catch(error => console.log('error syncing data', error));
 
-Module.exports = {
-  Sequelize,
-  movieDB,
+module.exports = {
   Movie,
   Stats,
 };
