@@ -1,5 +1,5 @@
 const express = require('express');
-const dummyData = require('../database/dummyData.js');
+const dummyData = require('../postgresDb/dummyData.js');
 
 const app = express();
 

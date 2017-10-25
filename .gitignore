@@ -27,7 +27,7 @@ coverage
 .grunt
 
 # Credentials
-/database/credentials/credentials.js
+/postgresDb/credentials/credentials.js
 
 # Compiled Dirs (http://nodejs.org/api/addons.html)
 build/
