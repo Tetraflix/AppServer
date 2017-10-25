@@ -58,7 +58,7 @@ const Stats = movieDb.define('stats', {
   },
 });
 
-Movie.sync({ force: true })
+Movie.sync()
   .then(() => Stats.sync())
   .catch(error => console.log('error syncing data', error));
 
