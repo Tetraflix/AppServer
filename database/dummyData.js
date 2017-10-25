@@ -1,12 +1,7 @@
 const movies = require('./index.js');
 
-movies.Movie.create({
-  title: 'Toy Story',
-  profile: '{"Action":0,"Animation":50,"Comedy":0,"Documentary":0,"Drama":0,"Family":50,"Fantasy":0,"Foreign":0,"Horror":0,"Musical":0,"Mystery":0,"Romance":0,"Science Fiction":0,"Thriller":0,"Western":0}',
-});
 
-
-// Generate movie object helper functions:
+// Helper functions for generating movie objects:
 
 function generateProfileValues() {
   // number of genres to calculate values for (a value between 1 and 14)
@@ -68,3 +63,21 @@ function assignProfileValues() {
   // return result as JSON string
   return JSON.stringify(result);
 }
+
+function generateString() {
+  // generate a random string of 20 characters to use as a title
+  const chars = 'abcdefghijklmnopqrstuvywxz ';
+  const title = [];
+  for (let i = 0; i < 20; i += 1) {
+    title.push(chars[Math.floor(Math.random() * 27)]);
+  }
+  return title.join('');
+}
+
+
+// Add movies to movie database
+
+movies.Movie.create({
+  title: generateString(),
+  profile: assignProfileValues(),
+});
