@@ -76,11 +76,20 @@ function generateString() {
 
 
 // Add movies to movie database
-function addDummyData() {
+
+module.exports = (i = 0) => {
   movies.Movie.create({
     title: generateString(),
     profile: assignProfileValues(),
-  });
-}
-
-module.exports = addDummyData;
+    views: Math.floor(Math.random() * 1000000),
+  })
+    .then(() => {
+      if (i < 300000) {
+        return module.exports(i + 1);
+      }
+      return i;
+    })
+    .catch((err) => {
+      console.error('Error adding to movie database', err);
+    });
+};

@@ -60,12 +60,6 @@ const Stats = movieDb.define('stats', {
 
 Movie.sync({ force: true })
   .then(() => Stats.sync())
-  .then(() => (
-    Movie.create({
-      title: 'abcaiuhfgkaj',
-      profile: '{"action":11,"animation":7,"comedy":6,"documentary":6,"drama":7,"family":8,"fantasy":5,"international":12,"horror":7,"musical":6,"mystery":0,"romance":12,"sci_fi":8,"thriller":0,"western":5}',
-    })
-  ))
   .catch(error => console.log('error syncing data', error));
 
 module.exports = {

@@ -35,7 +35,7 @@ app.get('/tetraflix/genre/:genre', (req, res) => {
   res.send(queryResult);
 });
 
-app.get('/tetraflix/dummyData', (req, res) => {
+app.get('/tetraflix/dummyData/movies', (req, res) => {
   dummyData();
-  res.send('done');
+  res.send('adding movies...');
 });
