@@ -1,4 +1,5 @@
 const mongoDb = require('./index.js');
+const postgresDb = require('../postgresDb/index.js');
 
 const animation = new mongoDb.GenreRec({
   genre: 'animation',
@@ -60,7 +61,7 @@ animation.save((error) => {
 });
 
 const testUser = new mongoDb.UserMovies({
-  userID: 10001,
+  userId: 10001,
   recs: [
     {
       movieId: 123456,
@@ -226,10 +227,62 @@ testUser.save((error) => {
 // if user exists, replace old recs with new recs array
 // else, create a new row for that user with the current recs array and an empty cw array
 
-// generate random userId between 1 and 2000000
-// generate array of 20 random numbers between 1 and 300000
-// for each number, look up the movie with that id in postgres db
-// format movie object and push to a new recs array
-// if user exists, update user recs
-// else create user row with current recs and empty cw array
+// newRecs for user
+const newRecs = [];
 
+// generate random userId between 1 and 2000000
+const user = Math.floor(Math.random() * 2000000);
+
+// generate array of 20 random numbers between 1 and 300000
+const recIds = [];
+for (let i = 0; i < 20; i += 1) {
+  // there's a small chance the same movie could be recommended twice
+  // this is okay for the simulation
+  recIds.push(Math.random() * 300000);
+}
+
+// for each number, look up the movie with that id in postgres db
+function generateMovieObj(i = 0) {
+  postgresDb.Movie.find({ id: recIds[i] })
+    // format movie object and push to newRecs
+    .then((queryResult) => {
+      const movieObj = JSON.parse(queryResult);
+      const result = {};
+      result.movieId = movieObj.id;
+      result.title = movieObj.title;
+      result.views = movieObj.views;
+      result.progress = 0;
+      result.profile = movieObj.profile;
+      newRecs.push(result);
+    })
+    .then(() => {
+      if (i < 20) {
+        return generateMovieObj(i + 1);
+      }
+      return 'done';
+    })
+    .then(() => {
+      // if user exists, update user recs
+      mongoDb.UserMovies.update(
+        {
+          userId: user,
+        },
+        {
+          recs: newRecs,
+        },
+        {
+          upsert: true,
+        },
+        (err, res) => {
+          if (err) {
+            console.error(err);
+          }
+          return res;
+        }
+      )
+    .catch((err) => {
+      console.error(err);
+    });
+}
+
+// else create user row with current recs and empty cw array => upsert takes care of this?
