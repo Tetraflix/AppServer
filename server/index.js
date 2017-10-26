@@ -40,7 +40,7 @@ app.get('/tetraflix/dummyData/movies', (req, res) => {
   res.send('adding movies...');
 });
 
-app.get('/tetraflix/testing', (req, res) => {
-  console.log('inside server');
-  res.send('testing, testing, testing');
-});
+// app.get('/tetraflix/testing', (req, res) => {
+//   console.log('inside server');
+//   res.send('testing, testing, testing');
+// });

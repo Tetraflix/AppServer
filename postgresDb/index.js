@@ -63,6 +63,7 @@ Movie.sync()
   .catch(error => console.log('error syncing data', error));
 
 module.exports = {
+  movieDb,
   Movie,
   Stats,
 };
