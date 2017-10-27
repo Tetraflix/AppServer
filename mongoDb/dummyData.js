@@ -1,6 +1,47 @@
 const mongoDb = require('./index.js');
 const postgresDb = require('../postgresDb/index.js');
 
+// seed user movies table with users, recommended and currently watching movies
+
+// generate 20 movieIds
+const movies = [];
+for (let i = 0; i < 20; i += 1) {
+  // small chance of duplicate movies okay for dummy data
+  movies.push(Math.floor(Math.random() * 300000));
+}
+
+// returns an array of 20 movie objects
+// progress is set to 0
+function generateRecs(arr) {
+  return postgresDb.Movie.findAll({
+    where: {
+      id: arr,
+    },
+  })
+    .then((results) => {
+      const newRecs = [];
+      results.forEach((result) => {
+        const resultObj = result.dataValues;
+        const newRec = {
+          movieId: resultObj.id,
+          title: resultObj.title,
+          views: resultObj.views,
+          progress: 0,
+          profile: resultObj.profile,
+        };
+        newRecs.push(newRec);
+      });
+      console.log(newRecs);
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+}
+
+generateRecs(movies);
+
+/*
+
 const animation = new mongoDb.GenreRec({
   genre: 'animation',
   createdAt: new Date(),
@@ -286,3 +327,5 @@ function generateMovieObj(i = 0) {
 }
 
 // else create user row with current recs and empty cw array => upsert takes care of this?
+
+*/

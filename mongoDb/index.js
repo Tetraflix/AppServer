@@ -67,6 +67,7 @@ const UserMovies = mongoose.model('UserMovies', userMoviesSchema);
 
 
 module.exports = {
+  db,
   GenreRec,
   UserMovies,
 };
