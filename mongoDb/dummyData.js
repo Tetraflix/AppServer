@@ -28,53 +28,70 @@ function generateCW(arr) {
   });
 }
 
-Promise.all([generateRecs(movies, test1 => test1), generateCW(movies, test2 => test2)])
-  .then((results) => {
-    // format recs
-    const recs = results[0];
-    const newRecs = [];
-    recs.forEach((rec) => {
-      const recObj = rec.dataValues;
-      const newRec = {
-        movieId: recObj.id,
-        title: recObj.title,
-        views: recObj.views,
-        progress: 0,
-        profile: recObj.profile,
-      };
-      newRecs.push(newRec);
-    });
-    // format cw
-    const cws = results[1];
-    const newCWs = [];
-    cws.forEach((cw) => {
-      const cwObj = cw.dataValues;
-      const newCW = {
-        movieId: cwObj.id,
-        title: cwObj.title,
-        views: cwObj.views,
-        progress: (Math.floor(Math.random() * 100)) / 100,
-        profile: cwObj.profile,
-      };
-      newCWs.push(newCW);
-    });
-    return [newRecs, newCWs];
-  })
-  .then((formattedData) => {
-    // create new userMovies object
-    const newUser = new mongoDb.UserMovies({
-      userId: 1, // this needs to be dynamic
-      recs: formattedData[0],
-      cw: formattedData[1],
-    });
-    newUser.save((error) => {
-      if (error) {
-        console.error(error);
-      } else {
-        console.log('saved');
+let counter = 0;
+
+function addUserMovies() {
+  Promise.all([generateRecs(movies), generateCW(movies)])
+    .then((results) => {
+      // format recs
+      const recs = results[0];
+      const newRecs = [];
+      recs.forEach((rec) => {
+        const recObj = rec.dataValues;
+        const newRec = {
+          movieId: recObj.id,
+          title: recObj.title,
+          views: recObj.views,
+          progress: 0,
+          profile: recObj.profile,
+        };
+        newRecs.push(newRec);
+      });
+      // format cw
+      const cws = results[1];
+      const newCWs = [];
+      cws.forEach((cw) => {
+        const cwObj = cw.dataValues;
+        const newCW = {
+          movieId: cwObj.id,
+          title: cwObj.title,
+          views: cwObj.views,
+          progress: (Math.floor(Math.random() * 100)) / 100,
+          profile: cwObj.profile,
+        };
+        newCWs.push(newCW);
+      });
+      return [newRecs, newCWs];
+    })
+    .then((formattedData) => {
+      // create new userMovies object
+      const newUser = new mongoDb.UserMovies({
+        _id: counter,
+        recs: formattedData[0],
+        cw: formattedData[1],
+      });
+      newUser.save((error) => {
+        if (error) {
+          console.error(error);
+        } else {
+          console.log('saved');
+        }
+      });
+    })
+    .then(() => {
+      counter += 1;
+      if (counter < 1000000) {
+        addUserMovies();
       }
+    })
+    .catch((err) => {
+      console.error(err);
     });
-  })
-  .catch((err) => {
-    console.error(err);
-  });
+}
+
+module.exports = addUserMovies;
+// module.exports = () => {
+//   for (let i = 0; i < 10; i += 1) {
+//     addUserMovies();
+//   }
+// };

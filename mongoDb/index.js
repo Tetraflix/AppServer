@@ -58,10 +58,7 @@ const GenreRec = mongoose.model('GenreRec', genreRecSchema);
 // top 20 recommendations and currently watching for each user
 
 const userMoviesSchema = mongoose.Schema({
-  userId: {
-    type: Number,
-    unique: true,
-  },
+  _id: Number,
   recs: [movieSchema],
   cw: [movieSchema],
 });
