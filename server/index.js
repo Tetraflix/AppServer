@@ -1,5 +1,6 @@
 const express = require('express');
-const dummyData = require('../postgresDb/dummyData.js');
+const pgDummyData = require('../postgresDb/dummyData.js');
+const mgDummyData = require('../mongoDb/dummyData.js');
 
 const app = express();
 
@@ -36,8 +37,13 @@ app.get('/tetraflix/genre/:genre', (req, res) => {
 });
 
 app.get('/tetraflix/dummyData/movies', (req, res) => {
-  dummyData();
+  pgDummyData();
   res.send('adding movies...');
+});
+
+app.get('/tetraflix/dummyData/userMovies', (req, res) => {
+  mgDummyData();
+  res.send('adding user...');
 });
 
 // app.get('/tetraflix/testing', (req, res) => {
