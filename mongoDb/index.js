@@ -12,8 +12,6 @@ db.once('open', () => {
   // Now connected to tetraflix database
 });
 
-// schema for movies
-
 const movieSchema = mongoose.Schema({
   movieId: Number,
   title: String,

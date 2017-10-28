@@ -1,13 +1,14 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
-const server = require('../server/index.js');
 const postgresDb = require('../postgresDb/index.js');
+// const server = require('../server/index.js'); (required for testing server)
 
 const should = chai.should();
 
 chai.use(chaiHttp);
 
 const id = Math.floor(Math.random() * 300000);
+const queryById = `select * from movies where id = ${id}`;
 
 describe('Movies', () => {
   // it('testing', (done) => {
@@ -29,31 +30,28 @@ describe('Movies', () => {
         isBigEnough.should.equal(true);
       })
       .catch((err) => {
-        console.error(err);
+        throw err;
       });
   });
 
   it('each movie should have a title', () => {
-    // const queryString = 'select * from movies where id = ' + id;
-    postgresDb.movieDb.query('select * from movies where id = ' + id)
+    postgresDb.movieDb.query(queryById)
       .then((result) => {
-        const title = result[0][0].title;
+        const { title } = result[0][0];
         title.should.be.a('string');
       });
   });
 
   it('each movie should have a view count', () => {
-    // const queryString = 'select * from movies where id = ' + id;
-    postgresDb.movieDb.query('select * from movies where id = ' + id)
+    postgresDb.movieDb.query(queryById)
       .then((result) => {
-        const views = result[0][0].views;
+        const { views } = result[0][0];
         views.should.be.a('number');
       });
   });
 
   it('each movie should have a genre profile', () => {
-    // const queryString = 'select * from movies where id = ' + id;
-    postgresDb.movieDb.query('select * from movies where id = ' + id)
+    postgresDb.movieDb.query(queryById)
       .then((result) => {
         const profile = JSON.parse(result[0][0].profile);
         profile.should.be.a('object');
@@ -61,8 +59,7 @@ describe('Movies', () => {
   });
 
   it('profile should have 15 genres', () => {
-    // const queryString = 'select * from movies where id = ' + id;
-    postgresDb.movieDb.query('select * from movies where id = ' + id)
+    postgresDb.movieDb.query(queryById)
       .then((result) => {
         const profile = JSON.parse(result[0][0].profile);
         const genreCount = Object.keys(profile).length;
@@ -71,8 +68,7 @@ describe('Movies', () => {
   });
 
   it('profile values should add up to 100', () => {
-    // const queryString = 'select * from movies where id = ' + id;
-    postgresDb.movieDb.query('select * from movies where id = ' + id)
+    postgresDb.movieDb.query(queryById)
       .then((result) => {
         const profile = JSON.parse(result[0][0].profile);
         let profileTotal = 0;
