@@ -16,20 +16,24 @@ app.listen(3000, () => {
 app.get('/tetraflix/recommendations/:user', (req, res) => {
   const { user } = req.params;
   mongoDb.UserMovies.findById(user, (err, doc) => {
-    res.send(doc);
+    if (err) {
+      throw err;
+    } else {
+      res.send(doc);
+    }
   });
 });
 
 app.get('/tetraflix/genre/:genre', (req, res) => {
   // genre recs are not user-specific
-  // const { genre } = req.params;
-
-  // look up recs by genre
-  // something like: queryResult = findOne({ where: { genre: genre } });
-
-  // very simplified result; actual will contain 20 movie objects
-  const queryResult = '"{"genre":[{"id":34532,"title":"Spider Man","profile":{"action":80,"comedy":20},"progress":0},{"id":567490,"title":"Star Wars","profile":{"action":70,"fantasy":30},"progress":0}]}"';
-  res.send(queryResult);
+  const { genre } = req.params;
+  mongoDb.GenreRec.findOne({ where: { genre } }, (err, doc) => {
+    if (err) {
+      throw err;
+    } else {
+      res.send(doc);
+    }
+  });
 });
 
 app.get('/tetraflix/dummyData/movies', (req, res) => {
