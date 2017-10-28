@@ -18,10 +18,10 @@ if (process.env.DATABASE_URL) {
 movieDb
   .authenticate()
   .then(() => {
-    console.log('Successful connection to movies database');
+    // Successful connection to movies database
   })
   .catch((err) => {
-    console.error('Unable to connect to movies database', err);
+    throw err;
   });
 
 // movies database movie schema
@@ -60,7 +60,9 @@ const Stats = movieDb.define('stats', {
 
 Movie.sync()
   .then(() => Stats.sync())
-  .catch(error => console.log('error syncing data', error));
+  .catch((err) => {
+    throw err;
+  });
 
 module.exports = {
   movieDb,

@@ -3,7 +3,7 @@ const movies = require('./index.js');
 
 // Helper functions for generating movie objects:
 
-function generateProfileValues() {
+const generateProfileValues = () => {
   // number of genres to calculate values for (a value between 1 and 14)
   const genreNum = Math.floor(Math.random() * 13) + 1;
   // generate number of random values equal that add up to 100
@@ -23,9 +23,9 @@ function generateProfileValues() {
   // add final value so that they add up to 100
   values.push(100 - newTotal);
   return values;
-}
+};
 
-function assignProfileValues() {
+const assignProfileValues = () => {
   // default all values to 0
   const profile = [
     ['action', 0],
@@ -62,9 +62,9 @@ function assignProfileValues() {
   });
   // return result as JSON string
   return JSON.stringify(result);
-}
+};
 
-function generateString() {
+const generateString = () => {
   // generate a random string of 20 characters to use as a title
   const chars = 'abcdefghijklmnopqrstuvywxz ';
   const title = [];
@@ -72,7 +72,7 @@ function generateString() {
     title.push(chars[Math.floor(Math.random() * 27)]);
   }
   return title.join('');
-}
+};
 
 
 // Add movies to movie database
@@ -90,6 +90,6 @@ module.exports = (i = 0) => {
       return i;
     })
     .catch((err) => {
-      console.error('Error adding to movie database', err);
+      throw err;
     });
 };

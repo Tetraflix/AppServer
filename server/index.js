@@ -9,11 +9,11 @@ app.get('/', (req, res) => {
 });
 
 app.listen(3000, () => {
-  console.log('Example app listening on port 3000!');
+  // listening on port 3000
 });
 
 app.get('/tetraflix/recommendations/:user', (req, res) => {
-  const user = req.params.user;
+  // const { user } = req.params;
 
   // look up recs and cw for user by ID
   // something like: queryResult = findOne({ where: { user: user} });
@@ -26,7 +26,7 @@ app.get('/tetraflix/recommendations/:user', (req, res) => {
 
 app.get('/tetraflix/genre/:genre', (req, res) => {
   // genre recs are not user-specific
-  const genre = req.params.genre;
+  // const { genre } = req.params;
 
   // look up recs by genre
   // something like: queryResult = findOne({ where: { genre: genre } });

@@ -4,12 +4,12 @@ mongoose.connect('mongodb://localhost/tetraflix');
 
 const db = mongoose.connection;
 
-db.on('error', () => {
-  console.error('connection error');
+db.on('error', (error) => {
+  throw error;
 });
 
 db.once('open', () => {
-  console.log('Now connected to tetraflix database');
+  // Now connected to tetraflix database
 });
 
 // schema for movies

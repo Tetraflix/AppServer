@@ -11,26 +11,26 @@ for (let i = 0; i < 20; i += 1) {
 }
 
 // retrieve movie objects by id for recs list
-function generateRecs(arr) {
-  return postgresDb.Movie.findAll({
+const generateRecs = arr => (
+  postgresDb.Movie.findAll({
     where: {
       id: arr,
     },
-  });
-}
+  })
+);
 
 // retrieve movie objects by id for cw list
-function generateCW(arr) {
-  return postgresDb.Movie.findAll({
+const generateCW = arr => (
+  postgresDb.Movie.findAll({
     where: {
       id: arr,
     },
-  });
-}
+  })
+);
 
 let counter = 0;
 
-function addUserMovies() {
+const addUserMovies = () => {
   Promise.all([generateRecs(movies), generateCW(movies)])
     .then((results) => {
       // format recs
@@ -72,9 +72,7 @@ function addUserMovies() {
       });
       newUser.save((error) => {
         if (error) {
-          console.error(error);
-        } else {
-          console.log('saved');
+          throw error;
         }
       });
     })
@@ -84,14 +82,9 @@ function addUserMovies() {
         addUserMovies();
       }
     })
-    .catch((err) => {
-      console.error(err);
+    .catch((error) => {
+      throw error;
     });
-}
+};
 
 module.exports = addUserMovies;
-// module.exports = () => {
-//   for (let i = 0; i < 10; i += 1) {
-//     addUserMovies();
-//   }
-// };
