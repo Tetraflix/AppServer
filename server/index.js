@@ -2,6 +2,7 @@ const express = require('express');
 const pgDummyData = require('../postgresDb/dummyData.js');
 const mgDummyData = require('../mongoDb/dummyData.js');
 const mongoDb = require('../mongoDb/index.js');
+const client = require('../dashboard/index.js');
 
 const app = express();
 
@@ -19,7 +20,16 @@ app.get('/tetraflix/recommendations/:user', (req, res) => {
     if (err) {
       throw err;
     } else {
-      res.send(doc);
+      client.index({
+        index: 'data',
+        type: 'user',
+        body: {
+          user,
+        },
+      })
+        .then(() => {
+          res.send(doc);
+        });
     }
   });
 });
@@ -31,7 +41,16 @@ app.get('/tetraflix/genre/:genre', (req, res) => {
     if (err) {
       throw err;
     } else {
-      res.send(doc);
+      client.index({
+        index: 'data',
+        type: 'user',
+        body: {
+          genre,
+        },
+      })
+        .then(() => {
+          res.send(doc);
+        });
     }
   });
 });
