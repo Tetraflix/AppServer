@@ -1,6 +1,7 @@
 const express = require('express');
 const pgDummyData = require('../postgresDb/dummyData.js');
 const mgDummyData = require('../mongoDb/dummyData.js');
+const mongoDb = require('../mongoDb/index.js');
 
 const app = express();
 
@@ -13,15 +14,10 @@ app.listen(3000, () => {
 });
 
 app.get('/tetraflix/recommendations/:user', (req, res) => {
-  // const { user } = req.params;
-
-  // look up recs and cw for user by ID
-  // something like: queryResult = findOne({ where: { user: user} });
-
-  // very simplified result; actual will contain 20 recommendation
-  // and some number of currently watching movie objects (up to 20?);
-  const queryResult = '"{"recommendations":[{"id":8675309,"title":"Lord of the Rings","profile":{"action":30,"adventure":40,"fantasy":30},"progress":0},{"id":4879823,"title":"Finding Nemo","profile":{"animation":60,"family":40},"progress":0}],"currentlyWatching":[{"id":234523,"title":"Shrek","profile":{"animation":40,"comedy":30,"family":30},"progress":0.3},{"id":857636,"title":"Lego Batman","profile":{"action":30,"animation":40,"comedy":30},"progress":0.7}]}"';
-  res.send(queryResult);
+  const { user } = req.params;
+  mongoDb.UserMovies.findById(user, (err, doc) => {
+    res.send(doc);
+  });
 });
 
 app.get('/tetraflix/genre/:genre', (req, res) => {
