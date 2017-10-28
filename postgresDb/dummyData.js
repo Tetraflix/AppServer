@@ -26,42 +26,49 @@ const generateProfileValues = () => {
 };
 
 const assignProfileValues = () => {
-  // default all values to 0
-  const profile = [
-    ['action', 0],
-    ['animation', 0],
-    ['comedy', 0],
-    ['documentary', 0],
-    ['drama', 0],
-    ['family', 0],
-    ['fantasy', 0],
-    ['international', 0],
-    ['horror', 0],
-    ['musical', 0],
-    ['mystery', 0],
-    ['romance', 0],
-    ['sci_fi', 0],
-    ['thriller', 0],
-    ['western', 0],
+  const profile = {
+    action: 0,
+    animation: 0,
+    comedy: 0,
+    documentary: 0,
+    drama: 0,
+    family: 0,
+    fantasy: 0,
+    international: 0,
+    horror: 0,
+    musical: 0,
+    mystery: 0,
+    romance: 0,
+    sci_fi: 0,
+    thriller: 0,
+    western: 0,
+  };
+
+  const genreKeys = [
+    'action',
+    'animation',
+    'comedy',
+    'documentary',
+    'drama',
+    'family',
+    'fantasy',
+    'international',
+    'horror',
+    'mystery',
+    'romance',
+    'sci_fi',
+    'thriller',
+    'western',
   ];
-  // generate genre profile values with helper function
+
   const values = generateProfileValues();
-  // assign values to genres randomly
-  const validIndicies = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
-  for (let i = 0; i < values.length; i += 1) {
-    const index = Math.floor(Math.random() * validIndicies.length);
-    const insertIndex = validIndicies[index];
-    // remove index from validIndices so that nothing is overwritten
-    validIndicies.splice(index, 1);
-    profile[insertIndex][1] = values[i];
+
+  for (let i = 0; i < 14; i += 1) {
+    const rand = Math.floor(Math.random() * 14);
+    profile[genreKeys[rand]] += values[i];
   }
-  // convert profile array to object
-  const result = {};
-  profile.forEach((genre) => {
-    result[genre[0]] = genre[1];
-  });
-  // return result as JSON string
-  return JSON.stringify(result);
+
+  return JSON.stringify(profile);
 };
 
 const generateString = () => {
