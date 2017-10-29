@@ -21,10 +21,11 @@ app.get('/tetraflix/recommendations/:user', (req, res) => {
       throw err;
     } else {
       client.index({
-        index: 'data',
+        index: 'user-data',
         type: 'user',
         body: {
           user,
+          date: new Date(),
         },
       })
         .then(() => {
@@ -42,10 +43,11 @@ app.get('/tetraflix/genre/:genre', (req, res) => {
       throw err;
     } else {
       client.index({
-        index: 'data',
+        index: 'userData',
         type: 'user',
         body: {
           genre,
+          date: new Date(),
         },
       })
         .then(() => {
