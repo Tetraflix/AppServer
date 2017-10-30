@@ -43,8 +43,8 @@ app.get('/tetraflix/genre/:genre', (req, res) => {
       throw err;
     } else {
       client.index({
-        index: 'userData',
-        type: 'user',
+        index: 'genre-data',
+        type: 'genre',
         body: {
           genre,
           date: new Date(),
