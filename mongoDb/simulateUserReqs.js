@@ -1,16 +1,7 @@
 const request = require('request');
 
-// const user = Math.floor(Math.random() * 1000000);
-
 const reqUserMovies = () => {
   request.get(`http://localhost:3000/tetraflix/recommendations/${Math.floor(Math.random() * 1000000)}`);
-  // request.get({
-  //   uri: `localhost:3000/tetraflix/recommendations/${user}`,
-  // }, (error, response, body) => {
-  //   if (error) {
-  //     throw error;
-  //   }
-  // });
 };
 
 setInterval(reqUserMovies, Math.floor(Math.random() * 100));

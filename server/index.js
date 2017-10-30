@@ -66,8 +66,3 @@ app.get('/tetraflix/dummyData/userMovies', (req, res) => {
   mgDummyData();
   res.send('adding user...');
 });
-
-// app.get('/tetraflix/testing', (req, res) => {
-//   console.log('inside server');
-//   res.send('testing, testing, testing');
-// });
