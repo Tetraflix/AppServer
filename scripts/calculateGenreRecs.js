@@ -1,8 +1,8 @@
-const movies = require('../postgresDb/index.js');
-const sequelize = require('sequelize');
+const postgresDb = require('../postgresDb/index.js');
+const mongoDb = require('../mongoDb/index.js');
 
 const getMostPopularByGenre = (genre) => {
-  movies.Movie.findAll({
+  postgresDb.Movie.findAll({
     // find top 1000 movies by view count
     order: [['views', 'DESC']],
     limit: 1000,
@@ -15,18 +15,17 @@ const getMostPopularByGenre = (genre) => {
         return [m.id, m.views * prof[genre]];
       })
     ))
-    .then((scores) => {
+    .then(scores => (
       // sort scores in descending order
-      return scores.sort((a, b) => {
+      scores.sort((a, b) => {
         if (a[1] > b[1]) {
           return -1;
         } else if (a[1] < b[1]) {
           return 1;
-        } else {
-          return 0;
         }
-      });
-    })
+        return 0;
+      })
+    ))
     .then((scoresDesc) => {
       // return array of top 20 movieIds
       const mostPopularIds = [];
@@ -35,23 +34,53 @@ const getMostPopularByGenre = (genre) => {
       }
       return mostPopularIds;
     })
-    .then((ids) => {
+    .then(ids => (
       // look up movies by ids
-      console.log(ids);
-    })
+      postgresDb.Movie.findAll({
+        where: {
+          id: ids,
+        },
+      })
+    ))
     .then((results) => {
-      // format results
-      console.log(results);
+      return results.map(result => result.dataValues)
     })
     .then((formatted) => {
+      formatted.forEach((movieObject) => {
+        movieObject.profile = JSON.parse(movieObject.profile);
+      });
       // update database with new genre recs
-      console.log(formatted);
+      mongoDb.GenreRec.findOneAndUpdate(
+        {
+          genre,
+        },
+        {
+          $setOnInsert:
+          {
+            genre,
+          },
+          $set: {
+            createdAt: new Date(),
+            recs: formatted,
+          },
+        },
+        {
+          upsert: true,
+          new: true,
+        },
+        (err, doc) => {
+          // do something
+          if (err) {
+            throw err;
+          }
+        },
+      );
     })
     .catch((err) => {
       throw err;
     });
 };
 
-getMostPopularByGenre('action');
+getMostPopularByGenre('drama');
 
 // run this query periodically for each genre (every day? x hours?)
