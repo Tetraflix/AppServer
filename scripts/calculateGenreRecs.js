@@ -1,7 +1,25 @@
 const postgresDb = require('../postgresDb/index.js');
 const mongoDb = require('../mongoDb/index.js');
 
-const getMostPopularByGenre = (genre) => {
+const genreArr = [
+  'action',
+  'animation',
+  'comedy',
+  'documentary',
+  'drama',
+  'family',
+  'fantasy',
+  'international',
+  'horror',
+  'musical',
+  'mystery',
+  'romance',
+  'sci_fi',
+  'thriller',
+  'western',
+];
+
+const updateGenreRecs = (genre) => {
   postgresDb.Movie.findAll({
     // find top 1000 movies by view count
     order: [['views', 'DESC']],
@@ -26,61 +44,58 @@ const getMostPopularByGenre = (genre) => {
         return 0;
       })
     ))
-    .then((scoresDesc) => {
+    .then((sortedDesc) => {
       // return array of top 20 movieIds
       const mostPopularIds = [];
       for (let i = 0; i < 20; i += 1) {
-        mostPopularIds.push(scoresDesc[i][0]);
+        mostPopularIds.push(sortedDesc[i][0]);
       }
-      return mostPopularIds;
-    })
-    .then(ids => (
       // look up movies by ids
-      postgresDb.Movie.findAll({
+      return postgresDb.Movie.findAll({
         where: {
-          id: ids,
+          id: mostPopularIds,
         },
-      })
-    ))
-    .then((results) => {
-      return results.map(result => result.dataValues)
-    })
-    .then((formatted) => {
-      formatted.forEach((movieObject) => {
-        movieObject.profile = JSON.parse(movieObject.profile);
       });
+    })
+    .then((results) => {
+      // format results
+      const formatted = results.map(result => result.dataValues);
+      for (let i = 0; i < formatted.length; i += 1) {
+        formatted[i].profile = JSON.parse(formatted[i].profile);
+      }
+      return formatted;
+    })
+    .then((recs) => {
       // update database with new genre recs
-      mongoDb.GenreRec.findOneAndUpdate(
-        {
+      const conditions = { genre };
+      const update = {
+        $setOnInsert: {
           genre,
         },
-        {
-          $setOnInsert:
-          {
-            genre,
-          },
-          $set: {
-            createdAt: new Date(),
-            recs: formatted,
-          },
+        $set: {
+          createdAt: new Date(),
+          recs,
         },
-        {
-          upsert: true,
-          new: true,
-        },
-        (err, doc) => {
-          // do something
-          if (err) {
-            throw err;
-          }
-        },
-      );
+      };
+      const options = {
+        upsert: true,
+        new: true,
+      };
+      const cb = (err, doc) => {
+        if (err) {
+          throw err;
+        }
+        return doc;
+      };
+      mongoDb.GenreRec.findOneAndUpdate(conditions, update, options, cb);
     })
     .catch((err) => {
       throw err;
     });
 };
 
-getMostPopularByGenre('drama');
+const updateAllGenreRecs = (genres) => {
+  genres.forEach(genre => updateGenreRecs(genre));
+};
 
-// run this query periodically for each genre (every day? x hours?)
+module.exports = () => updateAllGenreRecs(genreArr);
