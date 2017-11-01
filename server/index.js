@@ -38,7 +38,7 @@ app.get('/tetraflix/recommendations/:user', (req, res) => {
 app.get('/tetraflix/genre/:genre', (req, res) => {
   // genre recs are not user-specific
   const { genre } = req.params;
-  mongoDb.GenreRec.findOne({ where: { genre } }, (err, doc) => {
+  mongoDb.GenreRec.findOne({ genre }, (err, doc) => {
     if (err) {
       throw err;
     } else {
@@ -52,6 +52,9 @@ app.get('/tetraflix/genre/:genre', (req, res) => {
       })
         .then(() => {
           res.send(doc);
+        })
+        .catch((error) => {
+          throw error;
         });
     }
   });
