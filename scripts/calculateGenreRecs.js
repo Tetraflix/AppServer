@@ -74,20 +74,12 @@ const updateGenreRecs = (genre) => {
         upsert: true,
         new: true,
       };
-      const cb = (err, doc) => {
-        if (err) {
-          throw err;
-        }
-        return doc;
-      };
-      mongoDb.GenreRec.findOneAndUpdate(conditions, update, options, cb);
+      mongoDb.GenreRec.findOneAndUpdate(conditions, update, options).exec();
     })
     .catch((err) => {
       throw err;
     });
 };
-
-updateGenreRecs('action');
 
 const updateAllGenreRecs = (genres) => {
   genres.forEach(genre => updateGenreRecs(genre));
