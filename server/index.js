@@ -1,6 +1,8 @@
 const express = require('express');
 const pgDummyData = require('../postgresDb/dummyData.js');
 const mgDummyData = require('../mongoDb/dummyData.js');
+const mongoDb = require('../mongoDb/index.js');
+const client = require('../dashboard/index.js');
 
 const app = express();
 
@@ -13,27 +15,48 @@ app.listen(3000, () => {
 });
 
 app.get('/tetraflix/recommendations/:user', (req, res) => {
-  // const { user } = req.params;
-
-  // look up recs and cw for user by ID
-  // something like: queryResult = findOne({ where: { user: user} });
-
-  // very simplified result; actual will contain 20 recommendation
-  // and some number of currently watching movie objects (up to 20?);
-  const queryResult = '"{"recommendations":[{"id":8675309,"title":"Lord of the Rings","profile":{"action":30,"adventure":40,"fantasy":30},"progress":0},{"id":4879823,"title":"Finding Nemo","profile":{"animation":60,"family":40},"progress":0}],"currentlyWatching":[{"id":234523,"title":"Shrek","profile":{"animation":40,"comedy":30,"family":30},"progress":0.3},{"id":857636,"title":"Lego Batman","profile":{"action":30,"animation":40,"comedy":30},"progress":0.7}]}"';
-  res.send(queryResult);
+  const { user } = req.params;
+  mongoDb.UserMovies.findById(user).exec()
+    .then((result) => {
+      client.index({
+        index: 'user-data',
+        type: 'user',
+        body: {
+          user,
+          date: new Date(),
+        },
+      });
+      return result;
+    })
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      throw error;
+    });
 });
 
 app.get('/tetraflix/genre/:genre', (req, res) => {
   // genre recs are not user-specific
-  // const { genre } = req.params;
-
-  // look up recs by genre
-  // something like: queryResult = findOne({ where: { genre: genre } });
-
-  // very simplified result; actual will contain 20 movie objects
-  const queryResult = '"{"genre":[{"id":34532,"title":"Spider Man","profile":{"action":80,"comedy":20},"progress":0},{"id":567490,"title":"Star Wars","profile":{"action":70,"fantasy":30},"progress":0}]}"';
-  res.send(queryResult);
+  const { genre } = req.params;
+  mongoDb.GenreRec.findOne({ genre }).exec()
+    .then((result) => {
+      client.index({
+        index: 'genre-data',
+        type: 'genre',
+        body: {
+          genre,
+          date: new Date(),
+        },
+      });
+      return result;
+    })
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      throw error;
+    });
 });
 
 app.get('/tetraflix/dummyData/movies', (req, res) => {
@@ -45,8 +68,3 @@ app.get('/tetraflix/dummyData/userMovies', (req, res) => {
   mgDummyData();
   res.send('adding user...');
 });
-
-// app.get('/tetraflix/testing', (req, res) => {
-//   console.log('inside server');
-//   res.send('testing, testing, testing');
-// });

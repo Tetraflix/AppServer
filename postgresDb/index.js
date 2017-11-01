@@ -67,5 +67,6 @@ Movie.sync()
 module.exports = {
   movieDb,
   Movie,
+  Sequelize,
   Stats,
 };
