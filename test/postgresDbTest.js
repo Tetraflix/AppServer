@@ -1,7 +1,6 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const postgresDb = require('../postgresDb/index.js');
-// const server = require('../server/index.js'); (required for testing server)
 
 const should = chai.should();
 
@@ -11,18 +10,6 @@ const id = Math.floor(Math.random() * 300000);
 const queryById = `select * from movies where id = ${id}`;
 
 describe('Movies', () => {
-  // it('testing', (done) => {
-  //   chai.request('http://localhost:3000')
-  //     .get('/tetraflix/testing')
-  //     .end((err, res) => {
-  //       console.log(res.text);
-  //       res.should.have.status(200);
-  //       res.text.should.be.a('string');
-  //       res.text.should.equal('testing, testing, testing');
-  //       done();
-  //     });
-  // });
-
   it('should contain at least 300,000 movies', () => {
     postgresDb.movieDb.query('select count(*) from movies')
       .then((result) => {
