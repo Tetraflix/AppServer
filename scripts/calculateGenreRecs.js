@@ -25,26 +25,22 @@ const updateGenreRecs = (genre) => {
     order: [['views', 'DESC']],
     limit: 1000,
   })
-    .then(result => (
+    .then((result) => {
       // return [[movieId, score],...]
-      result.map((movie) => {
+      const scores = result.map((movie) => {
         const m = movie.dataValues;
         const prof = JSON.parse(m.profile);
         return [m.id, m.views * prof[genre]];
-      })
-    ))
-    .then(scores => (
-      // sort scores in descending order
-      scores.sort((a, b) => {
+      });
+      // sort descending by score
+      const sortedDesc = scores.sort((a, b) => {
         if (a[1] > b[1]) {
           return -1;
         } else if (a[1] < b[1]) {
           return 1;
         }
         return 0;
-      })
-    ))
-    .then((sortedDesc) => {
+      });
       // return array of top 20 movieIds
       const mostPopularIds = [];
       for (let i = 0; i < 20; i += 1) {
@@ -59,13 +55,10 @@ const updateGenreRecs = (genre) => {
     })
     .then((results) => {
       // format results
-      const formatted = results.map(result => result.dataValues);
-      for (let i = 0; i < formatted.length; i += 1) {
-        formatted[i].profile = JSON.parse(formatted[i].profile);
+      const recs = results.map(result => result.dataValues);
+      for (let i = 0; i < recs.length; i += 1) {
+        recs[i].profile = JSON.parse(recs[i].profile);
       }
-      return formatted;
-    })
-    .then((recs) => {
       // update database with new genre recs
       const conditions = { genre };
       const update = {
@@ -81,13 +74,7 @@ const updateGenreRecs = (genre) => {
         upsert: true,
         new: true,
       };
-      const cb = (err, doc) => {
-        if (err) {
-          throw err;
-        }
-        return doc;
-      };
-      mongoDb.GenreRec.findOneAndUpdate(conditions, update, options, cb);
+      mongoDb.GenreRec.findOneAndUpdate(conditions, update, options).exec();
     })
     .catch((err) => {
       throw err;

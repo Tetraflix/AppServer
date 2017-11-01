@@ -16,10 +16,8 @@ app.listen(3000, () => {
 
 app.get('/tetraflix/recommendations/:user', (req, res) => {
   const { user } = req.params;
-  mongoDb.UserMovies.findById(user, (err, doc) => {
-    if (err) {
-      throw err;
-    } else {
+  mongoDb.UserMovies.findById(user).exec()
+    .then((result) => {
       client.index({
         index: 'user-data',
         type: 'user',
@@ -27,21 +25,22 @@ app.get('/tetraflix/recommendations/:user', (req, res) => {
           user,
           date: new Date(),
         },
-      })
-        .then(() => {
-          res.send(doc);
-        });
-    }
-  });
+      });
+      return result;
+    })
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      throw error;
+    });
 });
 
 app.get('/tetraflix/genre/:genre', (req, res) => {
   // genre recs are not user-specific
   const { genre } = req.params;
-  mongoDb.GenreRec.findOne({ genre }, (err, doc) => {
-    if (err) {
-      throw err;
-    } else {
+  mongoDb.GenreRec.findOne({ genre }).exec()
+    .then((result) => {
       client.index({
         index: 'genre-data',
         type: 'genre',
@@ -49,15 +48,15 @@ app.get('/tetraflix/genre/:genre', (req, res) => {
           genre,
           date: new Date(),
         },
-      })
-        .then(() => {
-          res.send(doc);
-        })
-        .catch((error) => {
-          throw error;
-        });
-    }
-  });
+      });
+      return result;
+    })
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      throw error;
+    });
 });
 
 app.get('/tetraflix/dummyData/movies', (req, res) => {
