@@ -58,8 +58,8 @@ describe('View Count', () => {
   it('should update view count when progress equals one', (done) => {
     const movieId = Math.floor(Math.random() * 300000);
     const getViews = `select views from movies where id = ${movieId}`;
-    let viewsBefore = 0;
-    let viewsAfter = 0;
+    let viewsBefore;
+    let viewsAfter;
     postgresDb.movieDb.query(getViews)
       .then((resultBefore) => {
         viewsBefore = resultBefore[0][0].views;
@@ -93,8 +93,8 @@ describe('View Count', () => {
   it('should not update view count when progress is less than 1', (done) => {
     const movieId = Math.floor(Math.random() * 300000);
     const getViews = `select views from movies where id = ${movieId}`;
-    let viewsBefore = 0;
-    let viewsAfter = 0;
+    let viewsBefore;
+    let viewsAfter;
     postgresDb.movieDb.query(getViews)
       .then((resultBefore) => {
         viewsBefore = resultBefore[0][0].views;
@@ -156,12 +156,12 @@ describe('View Count', () => {
         },
       ],
     };
-    let movie1Before = 0;
-    let movie2Before = 0;
-    let movie3Before = 0;
-    let movie1After = 0;
-    let movie2After = 0;
-    let movie3After = 0;
+    let movie1Before;
+    let movie2Before;
+    let movie3Before;
+    let movie1After;
+    let movie2After;
+    let movie3After;
     postgresDb.Movie.findAll({
       where: {
         id: [movie1, movie2, movie3],
