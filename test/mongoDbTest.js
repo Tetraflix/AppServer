@@ -94,6 +94,7 @@ describe('GenreRec', () => {
       },
     })
       .then((result) => {
+        console.log('REEESULT', result);
         result.createdAt.should.be.a('string');
       });
   });

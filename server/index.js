@@ -2,9 +2,13 @@ const express = require('express');
 const pgDummyData = require('../postgresDb/dummyData.js');
 const mgDummyData = require('../mongoDb/dummyData.js');
 const mongoDb = require('../mongoDb/index.js');
+const postgresDb = require('../postgresDb/index.js');
 const client = require('../dashboard/index.js');
+const bodyParser = require('body-parser');
 
 const app = express();
+
+app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
@@ -57,6 +61,20 @@ app.get('/tetraflix/genre/:genre', (req, res) => {
     .catch((error) => {
       throw error;
     });
+});
+
+app.post('/tetraflix/sessionData', (req, res) => {
+  console.log('EVENTS', req.body);
+  const { events } = req.body;
+  events.forEach((event) => {
+    if (event.progress === 1) {
+      postgresDb.Movie.increment('views', { where: { id: event.movie.id } })
+        .catch((err) => {
+          throw err;
+        });
+    }
+  });
+  res.send('incrementing views...');
 });
 
 app.get('/tetraflix/dummyData/movies', (req, res) => {
