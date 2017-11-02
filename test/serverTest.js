@@ -54,26 +54,6 @@ describe('Genre Recommendations', () => {
   });
 });
 
-// input: {
-//   userId: 534356757834,
-//   events: [
-//     {
-//       movie: {
-//         id: 543,
-//       },
-//       progress: 1,
-//       timestamp: '2017-09-08 12:50PM'
-//     },
-//     {
-//       movie: {
-//         id: 155,
-//       },
-//       progress: 0.7,
-//       timestamp: '2017-09-08 2:50PM'
-//     }
-//   ]
-// }
-
 describe('View Count', () => {
   it('should update view count when progress equals one', (done) => {
     const movieId = Math.floor(Math.random() * 300000);
@@ -103,25 +83,123 @@ describe('View Count', () => {
             postgresDb.movieDb.query(getViews)
               .then((resultAfter) => {
                 viewsAfter = resultAfter[0][0].views;
-                const didIncrement = viewsAfter === viewsBefore + 1;
-                didIncrement.should.equal(true);
+                viewsAfter.should.equal(viewsBefore + 1);
               });
           });
         done();
       });
   });
 
-  xit('should not update view count when progress is less than 1', (done) => {
-    // look up view count of random movie by id
-    // make request to increment view count
-    // check that view count was not incremented
-    done();
+  it('should not update view count when progress is less than 1', (done) => {
+    const movieId = Math.floor(Math.random() * 300000);
+    const getViews = `select views from movies where id = ${movieId}`;
+    let viewsBefore = 0;
+    let viewsAfter = 0;
+    postgresDb.movieDb.query(getViews)
+      .then((resultBefore) => {
+        viewsBefore = resultBefore[0][0].views;
+        chai.request('http://localhost:3000')
+          .post('/tetraflix/sessionData')
+          .set('content-type', 'application/json')
+          .send({
+            userId: 12345,
+            events: [{
+              movie: {
+                id: movieId,
+              },
+              progress: 0.9,
+              timestamp: '2017-09-08 12:50PM',
+            }],
+          })
+          .end((err, res) => {
+            if (err) {
+              done(err);
+            }
+            postgresDb.movieDb.query(getViews)
+              .then((resultAfter) => {
+                viewsAfter = resultAfter[0][0].views;
+                viewsAfter.should.equal(viewsBefore);
+              });
+          });
+        done();
+      });
   });
 
-  xit('should update view count for multiple movies', (done) => {
-    // look up three movies (progress = 1; progress = 1; progress = 0.5)
-    // make request to increment view count
-    // check that only correct movies were updated
-    done();
+  it('should update view count for multiple movies', (done) => {
+    const rand = Math.floor(Math.random() * 100000);
+    const movie1 = rand;
+    const movie2 = rand + 100000;
+    const movie3 = rand + 200000;
+    const sendObj = {
+      userID: 12345,
+      events: [
+        {
+          movie: {
+            id: movie1,
+          },
+          progress: 1,
+          timestamp: '2017-09-08 12:50PM',
+        },
+        {
+          movie: {
+            id: movie2,
+          },
+          progress: 1,
+          timestamp: '2017-09-08 12:50PM',
+        },
+        {
+          movie: {
+            id: movie3,
+          },
+          progress: 0.9,
+          timestamp: '2017-09-08 12:50PM',
+        },
+      ],
+    };
+    let movie1Before = 0;
+    let movie2Before = 0;
+    let movie3Before = 0;
+    let movie1After = 0;
+    let movie2After = 0;
+    let movie3After = 0;
+    postgresDb.Movie.findAll({
+      where: {
+        id: [movie1, movie2, movie3],
+      },
+      order: [
+        ['id', 'ASC'],
+      ],
+    })
+      .then((before) => {
+        movie1Before = before[0].dataValues.views;
+        movie2Before = before[1].dataValues.views;
+        movie3Before = before[2].dataValues.views;
+        chai.request('http://localhost:3000')
+          .post('/tetraflix/sessionData')
+          .set('content-type', 'application/json')
+          .send(sendObj)
+          .end((err, res) => {
+            if (err) {
+              done(err);
+            }
+            postgresDb.Movie.findAll({
+              where: {
+                id: [movie1, movie2, movie3],
+              },
+              order: [
+                ['id', 'ASC'],
+              ],
+            })
+              .then((after) => {
+                movie1After = after[0].dataValues.views;
+                movie2After = after[1].dataValues.views;
+                movie3After = after[2].dataValues.views;
+                movie1After.should.equal(movie1Before + 1);
+                movie2After.should.equal(movie2Before + 1);
+                movie3After.should.equal(movie3Before);
+              });
+          });
+        done();
+      });
   });
 });

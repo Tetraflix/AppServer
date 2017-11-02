@@ -68,12 +68,12 @@ app.post('/tetraflix/sessionData', (req, res) => {
   events.forEach((event) => {
     if (event.progress === 1) {
       postgresDb.Movie.increment('views', { where: { id: event.movie.id } })
-        .then(res.send('incrementing views...'))
         .catch((err) => {
           throw err;
         });
     }
   });
+  res.sendStatus(201);
 });
 
 app.get('/tetraflix/dummyData/movies', (req, res) => {
