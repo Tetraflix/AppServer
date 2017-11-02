@@ -38,12 +38,13 @@ const addUserMovies = () => {
       const newRecs = [];
       recs.forEach((rec) => {
         const recObj = rec.dataValues;
+        const prof = JSON.parse(recObj.profile);
         const newRec = {
           movieId: recObj.id,
           title: recObj.title,
           views: recObj.views,
           progress: 0,
-          profile: recObj.profile,
+          profile: prof,
         };
         newRecs.push(newRec);
       });
@@ -52,12 +53,13 @@ const addUserMovies = () => {
       const newCWs = [];
       cws.forEach((cw) => {
         const cwObj = cw.dataValues;
+        const prof = JSON.parse(cwObj.profile);
         const newCW = {
           movieId: cwObj.id,
           title: cwObj.title,
           views: cwObj.views,
           progress: (Math.floor(Math.random() * 100)) / 100,
-          profile: cwObj.profile,
+          profile: prof,
         };
         newCWs.push(newCW);
       });
@@ -78,7 +80,7 @@ const addUserMovies = () => {
     })
     .then(() => {
       counter += 1;
-      if (counter < 1000000) {
+      if (counter <= 1000000) {
         addUserMovies();
       }
     })
