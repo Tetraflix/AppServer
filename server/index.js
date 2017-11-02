@@ -64,17 +64,16 @@ app.get('/tetraflix/genre/:genre', (req, res) => {
 });
 
 app.post('/tetraflix/sessionData', (req, res) => {
-  console.log('EVENTS', req.body);
   const { events } = req.body;
   events.forEach((event) => {
     if (event.progress === 1) {
       postgresDb.Movie.increment('views', { where: { id: event.movie.id } })
+        .then(res.send('incrementing views...'))
         .catch((err) => {
           throw err;
         });
     }
   });
-  res.send('incrementing views...');
 });
 
 app.get('/tetraflix/dummyData/movies', (req, res) => {
