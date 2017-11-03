@@ -5,6 +5,7 @@ const mongoDb = require('../mongoDb/index.js');
 const postgresDb = require('../postgresDb/index.js');
 const client = require('../dashboard/index.js');
 const bodyParser = require('body-parser');
+const calculateCW = require('../scripts/calculateCW.js');
 
 const app = express();
 
@@ -65,7 +66,9 @@ app.get('/tetraflix/genre/:genre', (req, res) => {
 
 app.post('/tetraflix/sessionData', (req, res) => {
   const { events } = req.body;
+  const movies = [];
   events.forEach((event) => {
+    movies.push([event.movie.id, event.progress]);
     if (event.progress === 1) {
       postgresDb.Movie.increment('views', { where: { id: event.movie.id } })
         .catch((err) => {
@@ -73,6 +76,7 @@ app.post('/tetraflix/sessionData', (req, res) => {
         });
     }
   });
+  // calculateCW(userId, movies);
   res.sendStatus(201);
 });
 
