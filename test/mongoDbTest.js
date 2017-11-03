@@ -23,7 +23,7 @@ const genreArr = [
   'thriller',
   'western',
 ];
-const id = Math.floor(Math.random() * 300000);
+const id = Math.floor(Math.random() * 1000000);
 const genre = Math.floor(Math.random() * 15);
 
 describe('UserMovies', () => {
@@ -50,10 +50,98 @@ describe('UserMovies', () => {
     done();
   });
 
+  it('each rec movie should have a movieId', (done) => {
+    mongoDb.UserMovies.findById(id)
+      .then((result) => {
+        result.recs[0].movieId.should.be.a('number');
+      })
+      .catch((err) => {
+        done(err);
+      });
+    done();
+  });
+
+  it('each rec movie should have a title', (done) => {
+    mongoDb.UserMovies.findById(id)
+      .then((result) => {
+        result.recs[0].title.should.be.a('string');
+      })
+      .catch((err) => {
+        done(err);
+      });
+    done();
+  });
+
+  it('each rec movie should have a view count', (done) => {
+    mongoDb.UserMovies.findById(id)
+      .then((result) => {
+        result.recs[0].views.should.be.a('number');
+      })
+      .catch((err) => {
+        done(err);
+      });
+    done();
+  });
+
+  it('each rec movie should have a genre profile', (done) => {
+    mongoDb.UserMovies.findById(id)
+      .then((result) => {
+        result.recs[0].profile.should.be.a('object');
+      })
+      .catch((err) => {
+        done(err);
+      });
+    done();
+  });
+
   it('each user should have a cw list', (done) => {
     mongoDb.UserMovies.findById(id)
       .then((result) => {
         result.cw.should.be.a('array');
+      })
+      .catch((err) => {
+        done(err);
+      });
+    done();
+  });
+
+  it('each movie in cw should have a movieId', (done) => {
+    mongoDb.UserMovies.findById(id)
+      .then((result) => {
+        result.cw[0].movieId.should.be.a('number');
+      })
+      .catch((err) => {
+        done(err);
+      });
+    done();
+  });
+
+  it('each movie in cw should have a title', (done) => {
+    mongoDb.UserMovies.findById(id)
+      .then((result) => {
+        result.cw[0].title.should.be.a('string');
+      })
+      .catch((err) => {
+        done(err);
+      });
+    done();
+  });
+
+  it('each movie in cw should have a view count', (done) => {
+    mongoDb.UserMovies.findById(id)
+      .then((result) => {
+        result.cw[0].views.should.be.a('number');
+      })
+      .catch((err) => {
+        done(err);
+      });
+    done();
+  });
+
+  it('each movie in cw should have a genre profile', (done) => {
+    mongoDb.UserMovies.findById(id)
+      .then((result) => {
+        result.cw[0].profile.should.be.a('object');
       })
       .catch((err) => {
         done(err);
