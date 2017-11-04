@@ -13,7 +13,7 @@ const indexOfMovie = (CWList, movie) => {
 const calculateCW = (userId, movies) => {
   // retrieve user's currently watching list
   let CWList;
-  let prog = [];
+  const prog = [];
   const query = mongoDb.UserMovies.findById(userId);
   query.select('cw')
     .then((queryResult) => {
@@ -60,9 +60,7 @@ const calculateCW = (userId, movies) => {
         CWList = CWList.slice(CWList.length - 20);
       }
       // update cw list in mongoDb
-      mongoDb.UserMovies.update({ _id: userId }, { $set: { cw: CWList } }, (done) => {
-        console.log(done);
-      });
+      mongoDb.UserMovies.update({ _id: userId }, { $set: { cw: CWList } });
     })
     .catch((err) => {
       throw err;
@@ -70,11 +68,11 @@ const calculateCW = (userId, movies) => {
 
   // THINGS TO TEST:
   // updates progress if movie exists => yes
-  // deletes object if movie is finished => no
+  // deletes object if movie is finished => NOOOOO
   // add movie if not finished and not in cw list => yes
   // does not contain more than 20 movies => yes
 };
 
-// calculateCW(1000, [[22243, 1], [34488, 0.55], [123456, 0.9], [1, 0.1], [2, 0.2], [3, 0.3]]);
+calculateCW(50, [[8068, 0.51], [45441, 0.43], [123456, 1], [8543, 0.01], [22222, 0.94], [37859, 0.58]]);
 
 module.exports = calculateCW;
