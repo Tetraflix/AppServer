@@ -80,7 +80,7 @@ const addUserMovies = () => {
     })
     .then(() => {
       counter += 1;
-      if (counter <= 100) {
+      if (counter <= 1000000) {
         addUserMovies();
       }
     })
