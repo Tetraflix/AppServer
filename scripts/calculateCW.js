@@ -12,10 +12,13 @@ const indexOfMovie = (CWList, movie) => {
 
 const calculateCW = (userId, movies) => {
   // retrieve user's currently watching list
+  let CWList;
+  let prog = [];
   const query = mongoDb.UserMovies.findById(userId);
   query.select('cw')
     .then((queryResult) => {
-      const CWList = queryResult.cw;
+      CWList = queryResult.cw;
+      const results = [];
       // for each movie from the session events data
       for (let i = 0; i < movies.length; i += 1) {
         const movieIndex = indexOfMovie(CWList, movies[i][0]);
@@ -25,24 +28,53 @@ const calculateCW = (userId, movies) => {
           CWList.splice(movieIndex, 1);
         // if a movie is in cw list but still not finished
         } else if (movieIndex !== -1) {
-          // update progress
+          // update progress and move to end of list
           CWList[movieIndex].progress = movies[i][1];
+          const updated = CWList[movieIndex];
+          CWList.splice(movieIndex, 1);
+          CWList.push(updated);
         } else {
-          // look up movie by id and add formatted movie obj to end of cw list
+          // get movie data from postgresDb
+          prog.push(movies[i][1]);
+          results.push(postgresDb.Movie.findOne({ where: { id: movies[i][0] } }));
         }
       }
-      // only store up to 20 movies in cw list
-      // if cw.length > 20
-        // set cw to 20 most recent movies => cw.slice(length - 20)
+      return Promise.all(results);
     })
-    // .then((test) => {
-    //   console.log('test:', test);
-    // })
+    .then((movieData) => {
+      // add formatted movie objects to end of cw list
+      for (let i = 0; i < movieData.length; i += 1) {
+        const movieObj = movieData[i].dataValues;
+        const profile = JSON.parse(movieObj.profile);
+        const formatted = {
+          movieId: movieObj.id,
+          progress: prog[i],
+          title: movieObj.title,
+          views: movieObj.views,
+          profile,
+        };
+        CWList.push(formatted);
+      }
+      // limit the list to 20 items
+      if (CWList.length > 20) {
+        CWList = CWList.slice(CWList.length - 20);
+      }
+      // update cw list in mongoDb
+      mongoDb.UserMovies.update({ _id: userId }, { $set: { cw: CWList } }, (done) => {
+        console.log(done);
+      });
+    })
     .catch((err) => {
       throw err;
     });
+
+  // THINGS TO TEST:
+  // updates progress if movie exists => yes
+  // deletes object if movie is finished => no
+  // add movie if not finished and not in cw list => yes
+  // does not contain more than 20 movies => yes
 };
 
-calculateCW(1000, [[100, 0.9], [200, 1], [300, 0.5]]);
+calculateCW(1000, [[22243, 1], [34488, 0.55], [123456, 0.9], [1, 0.1], [2, 0.2], [3, 0.3]]);
 
 module.exports = calculateCW;
