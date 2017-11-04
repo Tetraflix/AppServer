@@ -3,13 +3,6 @@ const postgresDb = require('../postgresDb/index.js');
 
 // seed user movies table with users, recommended and currently watching movies
 
-// generate 20 movieIds
-const movies = [];
-for (let i = 0; i < 20; i += 1) {
-  // small chance of duplicate movies okay for dummy data
-  movies.push(Math.floor(Math.random() * 300000));
-}
-
 // retrieve movie objects by id for recs list
 const generateRecs = arr => (
   postgresDb.Movie.findAll({
@@ -31,7 +24,14 @@ const generateCW = arr => (
 let counter = 0;
 
 const addUserMovies = () => {
-  Promise.all([generateRecs(movies), generateCW(movies)])
+  const movies1 = [];
+  const movies2 = [];
+  for (let i = 0; i < 20; i += 1) {
+    // small chance of duplicate movies okay for dummy data
+    movies1.push(Math.floor(Math.random() * 300000));
+    movies2.push(Math.floor(Math.random() * 300000));
+  }
+  Promise.all([generateRecs(movies1), generateCW(movies2)])
     .then((results) => {
       // format recs
       const recs = results[0];
@@ -80,7 +80,7 @@ const addUserMovies = () => {
     })
     .then(() => {
       counter += 1;
-      if (counter <= 1000000) {
+      if (counter <= 100) {
         addUserMovies();
       }
     })

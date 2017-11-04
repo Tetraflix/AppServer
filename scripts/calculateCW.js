@@ -75,6 +75,6 @@ const calculateCW = (userId, movies) => {
   // does not contain more than 20 movies => yes
 };
 
-calculateCW(1000, [[22243, 1], [34488, 0.55], [123456, 0.9], [1, 0.1], [2, 0.2], [3, 0.3]]);
+// calculateCW(1000, [[22243, 1], [34488, 0.55], [123456, 0.9], [1, 0.1], [2, 0.2], [3, 0.3]]);
 
 module.exports = calculateCW;
