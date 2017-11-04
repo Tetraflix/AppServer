@@ -67,7 +67,7 @@ describe('View Count', () => {
           .post('/tetraflix/sessionData')
           .set('content-type', 'application/json')
           .send({
-            userId: 534356757834,
+            userId: 10,
             events: [{
               movie: {
                 id: movieId,
@@ -102,7 +102,7 @@ describe('View Count', () => {
           .post('/tetraflix/sessionData')
           .set('content-type', 'application/json')
           .send({
-            userId: 12345,
+            userId: 10,
             events: [{
               movie: {
                 id: movieId,
@@ -131,7 +131,7 @@ describe('View Count', () => {
     const movie2 = rand + 100000;
     const movie3 = rand + 200000;
     const sendObj = {
-      userID: 12345,
+      userID: 10,
       events: [
         {
           movie: {
