@@ -67,7 +67,7 @@ describe('View Count', () => {
           .post('/tetraflix/sessionData')
           .set('content-type', 'application/json')
           .send({
-            userId: 10,
+            userId: Math.floor(Math.random() * 1000000),
             events: [{
               movie: {
                 id: movieId,
@@ -84,9 +84,9 @@ describe('View Count', () => {
               .then((resultAfter) => {
                 viewsAfter = resultAfter[0][0].views;
                 viewsAfter.should.equal(viewsBefore + 1);
+                done();
               });
           });
-        done();
       });
   });
 
@@ -102,7 +102,7 @@ describe('View Count', () => {
           .post('/tetraflix/sessionData')
           .set('content-type', 'application/json')
           .send({
-            userId: 10,
+            userId: Math.floor(Math.random() * 1000000),
             events: [{
               movie: {
                 id: movieId,
@@ -119,9 +119,9 @@ describe('View Count', () => {
               .then((resultAfter) => {
                 viewsAfter = resultAfter[0][0].views;
                 viewsAfter.should.equal(viewsBefore);
+                done();
               });
           });
-        done();
       });
   });
 
@@ -197,9 +197,9 @@ describe('View Count', () => {
                 movie1After.should.equal(movie1Before + 1);
                 movie2After.should.equal(movie2Before + 1);
                 movie3After.should.equal(movie3Before);
+                done();
               });
           });
-        done();
       });
   });
 });
