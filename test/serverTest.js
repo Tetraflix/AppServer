@@ -215,7 +215,6 @@ describe('Currently Watching Movie List', () => {
     const randUser = Math.floor(Math.random() * 1000000);
     const movie1 = rand;
     const movie2 = rand + 100000;
-    const movie3 = rand + 200000;
     const sendObj = {
       userId: randUser,
       events: [
@@ -233,16 +232,8 @@ describe('Currently Watching Movie List', () => {
           progress: 1,
           timestamp: '2017-09-08 12:50PM',
         },
-        {
-          movie: {
-            id: movie3,
-          },
-          progress: 1,
-          timestamp: '2017-09-08 12:50PM',
-        },
       ],
     };
-    // ping server endpoint to update cw list with finished movies
     chai.request('http://localhost:3000')
       .post('/tetraflix/sessionData')
       .set('content-type', 'application/json')
@@ -256,56 +247,115 @@ describe('Currently Watching Movie List', () => {
               const movies = result.cw.map(movie => movie.movieId);
               movies.indexOf(movie1).should.equal(-1);
               movies.indexOf(movie2).should.equal(-1);
-              movies.indexOf(movie3).should.equal(-1);
               done();
             })
             .catch((error) => {
               throw error;
             });
         }
-        // cw list should not contain any finished movieIds
       });
   });
 
-  it('should update progress for movies already in cw list', (done) => {
-    // chai.request('http://localhost:3000')
-    //   .get(`/tetraflix/recommendations/${id}`)
-    //   .end((err, res) => {
-    //     res.should.have.status(200);
-    //     res.text.should.be.a('string');
-    //     const userMovies = JSON.parse(res.text);
-    //     userMovies.cw.should.be.a('array');
-    //     userMovies.recs.should.be.a('array');
-    //     done();
-    //   });
-    done();
-  });
-
-  it('should add movies not already in cw list', (done) => {
-    // chai.request('http://localhost:3000')
-    //   .get(`/tetraflix/recommendations/${id}`)
-    //   .end((err, res) => {
-    //     res.should.have.status(200);
-    //     res.text.should.be.a('string');
-    //     const userMovies = JSON.parse(res.text);
-    //     userMovies.cw.should.be.a('array');
-    //     userMovies.recs.should.be.a('array');
-    //     done();
-    //   });
-    done();
+  it('should update progress / add movie when progress < 1', (done) => {
+    const rand = Math.floor(Math.random() * 100000);
+    const randUser = Math.floor(Math.random() * 1000000);
+    const movie1 = rand;
+    const movie2 = rand + 100000;
+    const sendObj = {
+      userId: randUser,
+      events: [
+        {
+          movie: {
+            id: movie1,
+          },
+          progress: 0.11,
+          timestamp: '2017-09-08 12:50PM',
+        },
+        {
+          movie: {
+            id: movie2,
+          },
+          progress: 0.22,
+          timestamp: '2017-09-08 12:50PM',
+        },
+      ],
+    };
+    chai.request('http://localhost:3000')
+      .post('/tetraflix/sessionData')
+      .set('content-type', 'application/json')
+      .send(sendObj)
+      .end((err, res) => {
+        if (err) {
+          done(err);
+        } else {
+          mongoDb.UserMovies.findById(randUser)
+            .then((result) => {
+              const prog = {};
+              result.cw.forEach((movie) => {
+                prog[movie.movieId] = movie.progress;
+              });
+              prog[movie1].should.equal(0.11);
+              prog[movie2].should.equal(0.22);
+              done();
+            })
+            .catch((error) => {
+              throw error;
+            });
+        }
+      });
   });
 
   it('should contain 20 movies or fewer', (done) => {
-    // chai.request('http://localhost:3000')
-    //   .get(`/tetraflix/recommendations/${id}`)
-    //   .end((err, res) => {
-    //     res.should.have.status(200);
-    //     res.text.should.be.a('string');
-    //     const userMovies = JSON.parse(res.text);
-    //     userMovies.cw.should.be.a('array');
-    //     userMovies.recs.should.be.a('array');
-    //     done();
-    //   });
-    done();
+    const rand = Math.floor(Math.random() * 100000);
+    const randUser = Math.floor(Math.random() * 1000000);
+    const movie1 = rand;
+    const movie2 = rand + 100000;
+    const movie3 = rand + 200000;
+    const sendObj = {
+      userId: randUser,
+      events: [
+        {
+          movie: {
+            id: movie1,
+          },
+          progress: 0.11,
+          timestamp: '2017-09-08 12:50PM',
+        },
+        {
+          movie: {
+            id: movie2,
+          },
+          progress: 0.22,
+          timestamp: '2017-09-08 12:50PM',
+        },
+        {
+          movie: {
+            id: movie3,
+          },
+          progress: 0.33,
+          timestamp: '2017-09-08 12:50PM',
+        },
+      ],
+    };
+    chai.request('http://localhost:3000')
+      .post('/tetraflix/sessionData')
+      .set('content-type', 'application/json')
+      .send(sendObj)
+      .end((err, res) => {
+        if (err) {
+          done(err);
+        } else {
+          mongoDb.UserMovies.findById(randUser)
+            .then((result) => {
+              const movies = result.cw.map(movie => movie.movieId);
+              const isProperLength = movies.length <= 20;
+              isProperLength.should.equal(true);
+              done();
+            })
+            .catch((error) => {
+              throw error;
+            });
+        }
+      });
   });
 });

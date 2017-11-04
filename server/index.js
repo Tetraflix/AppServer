@@ -76,8 +76,15 @@ app.post('/tetraflix/sessionData', (req, res) => {
         });
     }
   });
-  // calculateCW(userId, movies);
-  res.sendStatus(201);
+  // calculateCW(req.body.userId, movies)
+  //   .then(() => res.sendStatus(201))
+  //   .catch((err) => {
+  //     throw err;
+  //   });
+  calculateCW(req.body.userId, movies);
+  setTimeout(() => {
+    res.sendStatus(201);
+  }, 20);
 });
 
 app.get('/tetraflix/dummyData/movies', (req, res) => {

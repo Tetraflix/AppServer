@@ -61,7 +61,7 @@ const calculateCW = (userId, movies) => {
         CWList = CWList.slice(CWList.length - 20);
       }
       // update cw list in mongoDb
-      mongoDb.UserMovies.update({ _id: userId }, { $set: { cw: CWList } }).exec();
+      return mongoDb.UserMovies.update({ _id: userId }, { $set: { cw: CWList } }).exec();
     })
     .catch((err) => {
       throw err;
