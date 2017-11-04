@@ -19,21 +19,22 @@ const calculateCW = (userId, movies) => {
     .then((queryResult) => {
       CWList = queryResult.cw;
       const results = [];
-      // for each movie from the session events data
+      // for each movie from session events data
       for (let i = 0; i < movies.length; i += 1) {
         const movieIndex = indexOfMovie(CWList, movies[i][0]);
-        // if a movie is finished and it is in cw list
+        // if movie is finished and in cw list
         if (movies[i][1] === 1 && movieIndex !== -1) {
           // delete finished movie
           CWList.splice(movieIndex, 1);
-        // if a movie is in cw list but still not finished
-        } else if (movieIndex !== -1) {
+        // if movie is not finished and in cw list
+        } else if (movies[i][1] !== 1 && movieIndex !== -1) {
           // update progress and move to end of list
           CWList[movieIndex].progress = movies[i][1];
           const updated = CWList[movieIndex];
           CWList.splice(movieIndex, 1);
           CWList.push(updated);
-        } else {
+        // if movie is not finished and not in cw list
+        } else if (movies[i][1] !== 1 && movieIndex === -1) {
           // get movie data from postgresDb
           prog.push(movies[i][1]);
           results.push(postgresDb.Movie.findOne({ where: { id: movies[i][0] } }));
@@ -55,24 +56,16 @@ const calculateCW = (userId, movies) => {
         };
         CWList.push(formatted);
       }
-      // limit the list to 20 items
+      // limit cw list to 20 items
       if (CWList.length > 20) {
         CWList = CWList.slice(CWList.length - 20);
       }
       // update cw list in mongoDb
-      mongoDb.UserMovies.update({ _id: userId }, { $set: { cw: CWList } });
+      mongoDb.UserMovies.update({ _id: userId }, { $set: { cw: CWList } }).exec();
     })
     .catch((err) => {
       throw err;
     });
-
-  // THINGS TO TEST:
-  // updates progress if movie exists => yes
-  // deletes object if movie is finished => NOOOOO
-  // add movie if not finished and not in cw list => yes
-  // does not contain more than 20 movies => yes
 };
-
-calculateCW(50, [[8068, 0.51], [45441, 0.43], [123456, 1], [8543, 0.01], [22222, 0.94], [37859, 0.58]]);
 
 module.exports = calculateCW;
