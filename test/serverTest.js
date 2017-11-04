@@ -26,6 +26,7 @@ const id = Math.floor(Math.random() * 300000);
 
 chai.use(chaiHttp);
 
+
 describe('Personalized Recommendations', () => {
   it('should return recs and cw for a user', (done) => {
     chai.request('http://localhost:3000')
@@ -41,6 +42,7 @@ describe('Personalized Recommendations', () => {
   });
 });
 
+
 describe('Genre Recommendations', () => {
   it('should return top genre recs', (done) => {
     chai.request('http://localhost:3000')
@@ -53,6 +55,7 @@ describe('Genre Recommendations', () => {
       });
   });
 });
+
 
 describe('View Count', () => {
   it('should update view count when progress equals one', (done) => {
@@ -201,5 +204,60 @@ describe('View Count', () => {
               });
           });
       });
+  });
+});
+
+
+describe('Currently Watching Movie List' () => {
+  it('should remove finished movies from cw list', (done) => {
+    // chai.request('http://localhost:3000')
+    //   .get(`/tetraflix/recommendations/${id}`)
+    //   .end((err, res) => {
+    //     res.should.have.status(200);
+    //     res.text.should.be.a('string');
+    //     const userMovies = JSON.parse(res.text);
+    //     userMovies.cw.should.be.a('array');
+    //     userMovies.recs.should.be.a('array');
+    //     done();
+    //   });
+  });
+
+  it('should update progress for movies already in cw list', (done) => {
+    // chai.request('http://localhost:3000')
+    //   .get(`/tetraflix/recommendations/${id}`)
+    //   .end((err, res) => {
+    //     res.should.have.status(200);
+    //     res.text.should.be.a('string');
+    //     const userMovies = JSON.parse(res.text);
+    //     userMovies.cw.should.be.a('array');
+    //     userMovies.recs.should.be.a('array');
+    //     done();
+    //   });
+  });
+
+  it('should add movies not already in cw list', (done) => {
+    // chai.request('http://localhost:3000')
+    //   .get(`/tetraflix/recommendations/${id}`)
+    //   .end((err, res) => {
+    //     res.should.have.status(200);
+    //     res.text.should.be.a('string');
+    //     const userMovies = JSON.parse(res.text);
+    //     userMovies.cw.should.be.a('array');
+    //     userMovies.recs.should.be.a('array');
+    //     done();
+    //   });
+  });
+
+  it('should contain 20 movies or fewer', (done) => {
+    // chai.request('http://localhost:3000')
+    //   .get(`/tetraflix/recommendations/${id}`)
+    //   .end((err, res) => {
+    //     res.should.have.status(200);
+    //     res.text.should.be.a('string');
+    //     const userMovies = JSON.parse(res.text);
+    //     userMovies.cw.should.be.a('array');
+    //     userMovies.recs.should.be.a('array');
+    //     done();
+    //   });
   });
 });
