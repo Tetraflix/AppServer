@@ -5,7 +5,8 @@ const mongoDb = require('../mongoDb/index.js');
 const postgresDb = require('../postgresDb/index.js');
 const client = require('../dashboard/index.js');
 const bodyParser = require('body-parser');
-const calculateCW = require('../scripts/calculateCW.js');
+const updateCW = require('../scripts/calculateCW.js');
+const 
 
 const app = express();
 
@@ -76,15 +77,20 @@ app.post('/tetraflix/sessionData', (req, res) => {
         });
     }
   });
-  // calculateCW(req.body.userId, movies)
+  // updateCW(req.body.userId, movies)
   //   .then(() => res.sendStatus(201))
   //   .catch((err) => {
   //     throw err;
   //   });
-  calculateCW(req.body.userId, movies);
+  updateCW(req.body.userId, movies);
   setTimeout(() => {
     res.sendStatus(201);
   }, 20);
+});
+
+app.post('tetraflix/userRecs', (req, res) => {
+  updateRecs(req.body.userId, req.body.rec);
+  res.sendStatus(201);
 });
 
 app.get('/tetraflix/dummyData/movies', (req, res) => {
