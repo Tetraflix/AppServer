@@ -250,7 +250,7 @@ describe('Currently Watching Movie List', () => {
               done();
             })
             .catch((error) => {
-              throw error;
+              done(error);
             });
         }
       });
@@ -299,7 +299,7 @@ describe('Currently Watching Movie List', () => {
               done();
             })
             .catch((error) => {
-              throw error;
+              done(error);
             });
         }
       });
@@ -353,7 +353,72 @@ describe('Currently Watching Movie List', () => {
               done();
             })
             .catch((error) => {
-              throw error;
+              done(error);
+            });
+        }
+      });
+  });
+});
+
+describe('Recommended Movie List', () => {
+  it('should contain new recommendations', (done) => {
+    const randUser = Math.floor(Math.random() * 1000000);
+    const recMovies = [];
+    for (let i = 0; i < 20; i += 1) {
+      recMovies.push(Math.floor(Math.random() * 300000));
+    }
+    const sendObj = {
+      userId: randUser,
+      rec: recMovies,
+    };
+    chai.request('http://localhost:3000')
+      .post('/tetraflix/userRecs')
+      .set('content-type', 'application/json')
+      .send(sendObj)
+      .end((err, res) => {
+        if (err) {
+          done(err);
+        } else {
+          mongoDb.UserMovies.findById(randUser)
+            .then((result) => {
+              const movies = result.recs.map(movie => movie.movieId);
+              recMovies.forEach((movie) => {
+                movies.indexOf(movie).should.not.equal(-1);
+              });
+              done();
+            })
+            .catch((error) => {
+              done(error);
+            });
+        }
+      });
+  });
+
+  it('should contain 20 recommendations', (done) => {
+    const randUser = Math.floor(Math.random() * 1000000);
+    const recMovies = [];
+    for (let i = 0; i < 20; i += 1) {
+      recMovies.push(Math.floor(Math.random() * 300000));
+    }
+    const sendObj = {
+      userId: randUser,
+      rec: recMovies,
+    };
+    chai.request('http://localhost:3000')
+      .post('/tetraflix/userRecs')
+      .set('content-type', 'application/json')
+      .send(sendObj)
+      .end((err, res) => {
+        if (err) {
+          done(err);
+        } else {
+          mongoDb.UserMovies.findById(randUser)
+            .then((result) => {
+              result.recs.length.should.equal(20);
+              done();
+            })
+            .catch((error) => {
+              done(error);
             });
         }
       });

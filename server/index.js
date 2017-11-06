@@ -85,7 +85,9 @@ app.post('/tetraflix/sessionData', (req, res) => {
 
 app.post('/tetraflix/userRecs', (req, res) => {
   updateRecs(req.body.userId, req.body.rec);
-  res.sendStatus(201);
+  setTimeout(() => {
+    res.sendStatus(201);
+  }, 50);
 });
 
 app.get('/tetraflix/dummyData/movies', (req, res) => {
