@@ -10,7 +10,7 @@ const indexOfMovie = (CWList, movie) => {
   return -1;
 };
 
-const calculateCW = (userId, movies) => {
+const updateCW = (userId, movies) => {
   // retrieve user's currently watching list
   let CWList;
   const prog = [];
@@ -68,4 +68,4 @@ const calculateCW = (userId, movies) => {
     });
 };
 
-module.exports = calculateCW;
+module.exports = updateCW;

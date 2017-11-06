@@ -1,5 +1,5 @@
 const cron = require('node-cron');
-const userRecs = require('./simulateUserRecs.js');
+const userRecs = require('./simulateUserReqs.js');
 const genreRecs = require('./calculateGenreRecs');
 
 const rand = () => Math.floor(Math.random() * 150) + 50;
