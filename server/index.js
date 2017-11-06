@@ -77,17 +77,17 @@ app.post('/tetraflix/sessionData', (req, res) => {
         });
     }
   });
-  updateCW(req.body.userId, movies);
-  setTimeout(() => {
-    res.sendStatus(201);
-  }, 20);
+  updateCW(req.body.userId, movies)
+    .then(() => {
+      res.sendStatus(201);
+    });
 });
 
 app.post('/tetraflix/userRecs', (req, res) => {
-  updateRecs(req.body.userId, req.body.rec);
-  setTimeout(() => {
-    res.sendStatus(201);
-  }, 50);
+  updateRecs(req.body.userId, req.body.rec)
+    .then(() => {
+      res.sendStatus(201);
+    });
 });
 
 app.get('/tetraflix/dummyData/movies', (req, res) => {

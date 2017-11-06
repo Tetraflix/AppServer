@@ -1,7 +1,7 @@
 const mongoDb = require('../mongoDb/index.js');
 const postgresDb = require('../postgresDb/index.js');
 
-const updateRecs = (userId, recArr) => {
+const updateRecs = (userId, recArr) =>
   postgresDb.Movie.findAll({
     where: {
       id: recArr,
@@ -21,11 +21,10 @@ const updateRecs = (userId, recArr) => {
         };
         newRecs.push(newRec);
       });
-      return mongoDb.UserMovies.update({ _id: userId }, { $set: { recs: newRecs } });
+      return mongoDb.UserMovies.update({ _id: userId }, { $set: { recs: newRecs } }).exec();
     })
     .catch((err) => {
       throw err;
     });
-};
 
 module.exports = updateRecs;

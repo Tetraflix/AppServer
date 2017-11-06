@@ -15,7 +15,7 @@ const updateCW = (userId, movies) => {
   let CWList;
   const prog = [];
   const query = mongoDb.UserMovies.findById(userId);
-  query.select('cw')
+  return query.select('cw')
     .then((queryResult) => {
       CWList = queryResult.cw;
       const results = [];
