@@ -2,17 +2,6 @@ const cron = require('node-cron');
 const request = require('request');
 const genreRecs = require('./calculateGenreRecs.js');
 
-// update genre recommendations every hour
-cron.schedule('* 59 * * * *', genreRecs);
-
-// simulate GET requests for individual user recommendations
-cron.schedule('* * * * *', () => {
-  const rand = Math.floor(Math.random() * 175) + 25;
-  for (let i = 0; i < rand; i += 1) {
-    request.get(`http://localhost:3000/tetraflix/recommendations/${Math.floor(Math.random() * 1000000)}`);
-  }
-});
-
 const genreArr = [
   'action',
   'animation',
@@ -30,18 +19,38 @@ const genreArr = [
   'thriller',
   'western',
 ];
-// simulate GET requests for genre recommendations
-cron.schedule('* * * * *', () => {
-  const rand = Math.floor(Math.random() * 175) + 25;
-  for (let i = 0; i < rand; i += 1) {
-    request.get(`http://localhost:3000/tetraflix/genre/${genreArr[Math.floor(Math.random() * 15)]}`);
+
+const processSessionData = () => {
+  const events = [];
+  for (let i = 0; i < 5; i += 1) {
+    events.push({
+      movie: {
+        id: Math.floor(Math.random() * 300000),
+      },
+      progress: Math.floor(Math.random() * 100) / 100,
+      timestamp: new Date(),
+    });
   }
-});
+  const sessionData = {
+    userId: Math.floor(Math.random() * 1000000),
+    events,
+  };
+  const options = {
+    url: 'http://localhost:3000/tetraflix/sessionData',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    method: 'POST',
+    body: sessionData,
+    json: true,
+  };
+  request(options, (error, response, body) => {
+    if (error) {
+      throw error;
+    }
+  });
+};
 
-// simulate processing session data
-// update movie view counts and currently watching for users
-
-// simulate updating genre recommendations
 const updateUserRecs = () => {
   const recs = [];
   for (let i = 0; i < 20; i += 1) {
@@ -67,8 +76,41 @@ const updateUserRecs = () => {
   });
 };
 
+// CRON JOBS
+
+// update genre recommendations every hour
+cron.schedule('* 59 * * * *', genreRecs);
+
+// simulate GET requests for individual user recommendations
 cron.schedule('* * * * *', () => {
-  const rand = Math.floor(Math.random() * 175) + 25;
+  const rand = Math.floor(Math.random() * 25) + 5;
+  for (let i = 0; i < rand; i += 1) {
+    request.get(`http://localhost:3000/tetraflix/recommendations/${Math.floor(Math.random() * 1000000)}`);
+  }
+});
+
+// simulate GET requests for genre recommendations
+cron.schedule('* * * * *', () => {
+  const rand = Math.floor(Math.random() * 25) + 5;
+  for (let i = 0; i < rand; i += 1) {
+    request.get(`http://localhost:3000/tetraflix/genre/${genreArr[Math.floor(Math.random() * 15)]}`);
+  }
+});
+
+
+// simulate processing session data
+// update movie view counts and currently watching for users
+cron.schedule('* * * * *', () => {
+  const rand = Math.floor(Math.random() * 25) + 5;
+  for (let i = 0; i < rand; i += 1) {
+    processSessionData();
+  }
+});
+
+
+// simulate updating genre recommendations
+cron.schedule('* * * * *', () => {
+  const rand = Math.floor(Math.random() * 25) + 5;
   for (let i = 0; i < rand; i += 1) {
     updateUserRecs();
   }

@@ -78,7 +78,20 @@ app.post('/tetraflix/sessionData', (req, res) => {
     }
   });
   updateCW(req.body.userId, movies)
-    .then(() => res.sendStatus(201))
+    .then(() => {
+      client.index({
+        index: 'session-data',
+        type: 'session',
+        body: {
+          user: req.body.userId,
+          movies: movies.length,
+          date: new Date(),
+        },
+      });
+    })
+    .then(() => {
+      res.sendStatus(201);
+    })
     .catch((error) => {
       throw error;
     });
