@@ -5,7 +5,8 @@ const mongoDb = require('../mongoDb/index.js');
 const postgresDb = require('../postgresDb/index.js');
 const client = require('../dashboard/index.js');
 const bodyParser = require('body-parser');
-const calculateCW = require('../scripts/calculateCW.js');
+const updateCW = require('../scripts/updateCW.js');
+const updateRecs = require('../scripts/updateRecs.js');
 
 const app = express();
 
@@ -76,15 +77,44 @@ app.post('/tetraflix/sessionData', (req, res) => {
         });
     }
   });
-  // calculateCW(req.body.userId, movies)
-  //   .then(() => res.sendStatus(201))
-  //   .catch((err) => {
-  //     throw err;
-  //   });
-  calculateCW(req.body.userId, movies);
-  setTimeout(() => {
-    res.sendStatus(201);
-  }, 20);
+  updateCW(req.body.userId, movies)
+    .then(() => {
+      client.index({
+        index: 'session-data',
+        type: 'session',
+        body: {
+          user: req.body.userId,
+          movies: movies.length,
+          date: new Date(),
+        },
+      });
+    })
+    .then(() => {
+      res.sendStatus(201);
+    })
+    .catch((error) => {
+      throw error;
+    });
+});
+
+app.post('/tetraflix/userRecs', (req, res) => {
+  updateRecs(req.body.userId, req.body.rec)
+    .then(() => {
+      client.index({
+        index: 'recs-data',
+        type: 'recs',
+        body: {
+          user: req.body.userId,
+          date: new Date(),
+        },
+      });
+    })
+    .then(() => {
+      res.sendStatus(201);
+    })
+    .catch((error) => {
+      throw error;
+    });
 });
 
 app.get('/tetraflix/dummyData/movies', (req, res) => {

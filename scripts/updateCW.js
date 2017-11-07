@@ -10,12 +10,12 @@ const indexOfMovie = (CWList, movie) => {
   return -1;
 };
 
-const calculateCW = (userId, movies) => {
+const updateCW = (userId, movies) => {
   // retrieve user's currently watching list
   let CWList;
   const prog = [];
   const query = mongoDb.UserMovies.findById(userId);
-  query.select('cw')
+  return query.select('cw')
     .then((queryResult) => {
       CWList = queryResult.cw;
       const results = [];
@@ -68,4 +68,4 @@ const calculateCW = (userId, movies) => {
     });
 };
 
-module.exports = calculateCW;
+module.exports = updateCW;
