@@ -78,15 +78,29 @@ app.post('/tetraflix/sessionData', (req, res) => {
     }
   });
   updateCW(req.body.userId, movies)
-    .then(() => {
-      res.sendStatus(201);
+    .then(() => res.sendStatus(201))
+    .catch((error) => {
+      throw error;
     });
 });
 
 app.post('/tetraflix/userRecs', (req, res) => {
   updateRecs(req.body.userId, req.body.rec)
     .then(() => {
+      client.index({
+        index: 'recs-data',
+        type: 'recs',
+        body: {
+          user: req.body.userId,
+          date: new Date(),
+        },
+      });
+    })
+    .then(() => {
       res.sendStatus(201);
+    })
+    .catch((error) => {
+      throw error;
     });
 });
 
