@@ -1,5 +1,10 @@
 const mongoDb = require('./index.js');
 const postgresDb = require('../postgresDb/index.js');
+const fs = require('fs');
+
+const DEFAULT = {
+  OUTPUT_FILE: 'usermovies_output.txt',
+};
 
 const getMovieInfoById = arr => (
   postgresDb.Movie.findAll({
@@ -41,13 +46,21 @@ const addUserMovies = () => {
         recs,
         cw,
       });
-      if (counter < 10000) {
+      if (counter < 5) {
         counter += 1;
         addUserMovies();
       } else {
-        console.log(userMovieObjs.length);
+        console.log('done', userMovieObjs.length);
         // console.log(userMovieObjs);
         // console.log(userMovieObjs[0].cw[0]);
+        fs.writeFile(DEFAULT.OUTPUT_FILE, JSON.stringify(userMovieObjs), (err) => {
+          if (err) {
+            console.log(err);
+            return;
+          }
+          console.log('--> successfully created file at:', DEFAULT.OUTPUT_FILE);
+          console.log('done!');
+        });
       }
     })
     .catch((error) => {
