@@ -28,6 +28,7 @@ coverage
 
 # Credentials
 credentials.js
+config.json
 
 # Dummy Data
 *_output.json
