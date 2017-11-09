@@ -29,7 +29,7 @@ coverage
 # Credentials
 credentials.js
 
-# Seed Data
+# Dummy Data
 *_output.json
 
 # Compiled Dirs (http://nodejs.org/api/addons.html)

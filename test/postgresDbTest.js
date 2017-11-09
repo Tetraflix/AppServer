@@ -1,12 +1,13 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const postgresDb = require('../postgresDb/index.js');
+const dbStats = require('../dbStats.js');
 
 const should = chai.should();
 
 chai.use(chaiHttp);
 
-const id = Math.floor(Math.random() * 300000);
+const id = Math.floor(Math.random() * dbStats.movies);
 const queryById = `select * from movies where id = ${id}`;
 
 describe('Movies', () => {
