@@ -1,6 +1,5 @@
 const express = require('express');
 const pgDummyData = require('../postgresDb/dummyData.js');
-const mgDummyData = require('../mongoDb/dummyData.js');
 const mongoDb = require('../mongoDb/index.js');
 const postgresDb = require('../postgresDb/index.js');
 const client = require('../dashboard/index.js');
@@ -120,9 +119,4 @@ app.post('/tetraflix/userRecs', (req, res) => {
 app.get('/tetraflix/dummyData/movies', (req, res) => {
   pgDummyData();
   res.send('adding movies...');
-});
-
-app.get('/tetraflix/dummyData/userMovies', (req, res) => {
-  mgDummyData();
-  res.send('adding user...');
 });
