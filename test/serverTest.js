@@ -130,10 +130,11 @@ describe('View Count', () => {
   });
 
   it('should update view count for multiple movies', (done) => {
-    const rand = Math.floor(Math.random() * (dbStats.movies / 3));
+    const third = Math.floor(dbStats.movies / 3);
+    const rand = Math.floor(Math.random() * third);
     const movie1 = rand;
-    const movie2 = rand + (dbStats.movies / 3);
-    const movie3 = rand + (dbStats.movies / 3);
+    const movie2 = rand + third;
+    const movie3 = rand + (2 * third);
     const sendObj = {
       userId: Math.floor(Math.random() * dbStats.users),
       events: [
@@ -211,10 +212,11 @@ describe('View Count', () => {
 
 describe('Currently Watching Movie List', () => {
   it('should remove / not add finished movies from cw list', (done) => {
-    const rand = Math.floor(Math.random() * (dbStats.movies / 2));
+    const half = Math.floor(dbStats.movies / 2);
+    const rand = Math.floor(Math.random() * half);
     const randUser = Math.floor(Math.random() * dbStats.users);
     const movie1 = rand;
-    const movie2 = rand + (dbStats.users / 2);
+    const movie2 = rand + half;
     const sendObj = {
       userId: randUser,
       events: [
@@ -257,10 +259,11 @@ describe('Currently Watching Movie List', () => {
   });
 
   it('should update progress / add movie when progress < 1', (done) => {
-    const rand = Math.floor(Math.random() * (dbStats.movies / 2));
+    const half = Math.floor(dbStats.movies / 2);
+    const rand = Math.floor(Math.random() * half);
     const randUser = Math.floor(Math.random() * dbStats.users);
     const movie1 = rand;
-    const movie2 = rand + (dbStats.movies / 2);
+    const movie2 = rand + half;
     const sendObj = {
       userId: randUser,
       events: [
@@ -306,11 +309,12 @@ describe('Currently Watching Movie List', () => {
   });
 
   it('should contain 20 movies or fewer', (done) => {
-    const rand = Math.floor(Math.random() * (dbStats.movies / 3));
+    const third = Math.floor(dbStats.movies / 3);
+    const rand = Math.floor(Math.random() * third);
     const randUser = Math.floor(Math.random() * dbStats.users);
     const movie1 = rand;
-    const movie2 = rand + (dbStats.movies / 3);
-    const movie3 = rand + (dbStats.movies / 3);
+    const movie2 = rand + third;
+    const movie3 = rand + (2 * third);
     const sendObj = {
       userId: randUser,
       events: [
