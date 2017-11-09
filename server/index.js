@@ -6,9 +6,51 @@ const client = require('../dashboard/index.js');
 const bodyParser = require('body-parser');
 const updateCW = require('../scripts/updateCW.js');
 const updateRecs = require('../scripts/updateRecs.js');
+const AWS = require('aws-sdk');
+const path = require('path');
+
+AWS.config.loadFromPath(path.resolve(__dirname, './config.json'));
+const sqs = new AWS.SQS({ apiVersion: '2012-11-05' });
+const queues = {
+  sessionData: 'https://sqs.us-east-2.amazonaws.com/014428875390/sessionData.fifo',
+  userRecs: 'https://sqs.us-east-2.amazonaws.com/014428875390/userRecs.fifo',
+};
+
+const sendMessages = options => (
+  new Promise((resolve, reject) => {
+    sqs.sendMessage(options, (err, data) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(data);
+      }
+    });
+  })
+);
+
+const updateUserRecs = () => {
+  const recs = [];
+  for (let i = 0; i < 20; i += 1) {
+    recs.push(Math.floor(Math.random() * 300000));
+  }
+  const recsData = {
+    userId: Math.floor(Math.random() * 1000000),
+    rec: recs,
+  };
+  const options = {
+    MessageBody: JSON.stringify(recsData),
+    QueueUrl: queues.userRecs,
+    MessageGroupId: 'userRecs',
+  };
+  sendMessages(options)
+    .catch((err) => {
+      console.log(err);
+    });
+};
+
+updateUserRecs();
 
 const app = express();
-
 app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
@@ -120,3 +162,8 @@ app.get('/tetraflix/dummyData/movies', (req, res) => {
   pgDummyData();
   res.send('adding movies...');
 });
+
+module.exports = {
+  sendMessages,
+  queues,
+};

@@ -2,6 +2,7 @@ const cron = require('node-cron');
 const request = require('request');
 const genreRecs = require('./calculateGenreRecs.js');
 const dbStats = require('../dbStats.js');
+const server = require('../server/index.js');
 
 const genreArr = [
   'action',
@@ -37,19 +38,14 @@ const processSessionData = () => {
     events,
   };
   const options = {
-    url: 'http://localhost:3000/tetraflix/sessionData',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    method: 'POST',
-    body: sessionData,
-    json: true,
+    MessageBody: JSON.stringify(sessionData),
+    QueueUrl: server.queues.sessionData,
+    MessageGroupId: 'sessionData',
   };
-  request(options, (error, response, body) => {
-    if (error) {
-      throw error;
-    }
-  });
+  server.sendMessages(options)
+    .catch((err) => {
+      throw err;
+    });
 };
 
 const updateUserRecs = () => {
@@ -62,19 +58,14 @@ const updateUserRecs = () => {
     rec: recs,
   };
   const options = {
-    url: 'http://localhost:3000/tetraflix/userRecs',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    method: 'POST',
-    body: recsData,
-    json: true,
+    MessageBody: JSON.stringify(recsData),
+    QueueUrl: server.queues.userRecs,
+    MessageGroupId: 'userRecs',
   };
-  request(options, (error, response, body) => {
-    if (error) {
-      throw error;
-    }
-  });
+  server.sendMessages(options)
+    .catch((err) => {
+      throw err;
+    });
 };
 
 // CRON JOBS
