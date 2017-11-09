@@ -77,11 +77,7 @@ cron.schedule('* 59 * * * *', genreRecs);
 cron.schedule('* * * * *', () => {
   const rand = Math.floor(Math.random() * 25) + 5;
   for (let i = 0; i < rand; i += 1) {
-<<<<<<< HEAD
     request.get(`http://localhost:3000/tetraflix/recommendations/${Math.floor(Math.random() * dbStats.users)}`);
-=======
-    request.get(`http://localhost:3000/tetraflix/recommendations/${Math.floor(Math.random() * 1000000)}`);
->>>>>>> start implementation of sqs receive and delete messages
   }
 });
 
