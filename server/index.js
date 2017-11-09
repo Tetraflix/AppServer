@@ -28,27 +28,26 @@ const sendMessages = options => (
   })
 );
 
-const updateUserRecs = () => {
-  const recs = [];
-  for (let i = 0; i < 20; i += 1) {
-    recs.push(Math.floor(Math.random() * 300000));
-  }
-  const recsData = {
-    userId: Math.floor(Math.random() * 1000000),
-    rec: recs,
-  };
-  const options = {
-    MessageBody: JSON.stringify(recsData),
-    QueueUrl: queues.userRecs,
-    MessageGroupId: 'userRecs',
-  };
-  sendMessages(options)
-    .catch((err) => {
-      console.log(err);
+const receiveMessages = options => (
+  new Promise((resolve, reject) => {
+    sqs.receiveMessage(options, (err, data) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(data);
+      }
     });
-};
+  })
+);
 
-updateUserRecs();
+const deleteMessage = options => (
+  new Promise((resolve, reject) => {
+    sqs.deleteMessage(options, (err, data) => {
+      if (err) reject(err);
+      else resolve(data);
+    });
+  })
+);
 
 const app = express();
 app.use(bodyParser.json());
@@ -106,57 +105,82 @@ app.get('/tetraflix/genre/:genre', (req, res) => {
     });
 });
 
-app.post('/tetraflix/sessionData', (req, res) => {
-  const { events } = req.body;
-  const movies = [];
-  events.forEach((event) => {
-    movies.push([event.movie.id, event.progress]);
-    if (event.progress === 1) {
-      postgresDb.Movie.increment('views', { where: { id: event.movie.id } })
-        .catch((err) => {
-          throw err;
-        });
-    }
-  });
-  updateCW(req.body.userId, movies)
-    .then(() => {
-      client.index({
-        index: 'session-data',
-        type: 'session',
-        body: {
-          user: req.body.userId,
-          movies: movies.length,
-          date: new Date(),
-        },
-      });
-    })
-    .then(() => {
-      res.sendStatus(201);
-    })
-    .catch((error) => {
-      throw error;
-    });
-});
+// app.post('/tetraflix/sessionData', (req, res) => {
+//   const { events } = req.body;
+//   const movies = [];
+//   events.forEach((event) => {
+//     movies.push([event.movie.id, event.progress]);
+//     if (event.progress === 1) {
+//       postgresDb.Movie.increment('views', { where: { id: event.movie.id } })
+//         .catch((err) => {
+//           throw err;
+//         });
+//     }
+//   });
+//   updateCW(req.body.userId, movies)
+//     .then(() => {
+//       client.index({
+//         index: 'session-data',
+//         type: 'session',
+//         body: {
+//           user: req.body.userId,
+//           movies: movies.length,
+//           date: new Date(),
+//         },
+//       });
+//     })
+//     .then(() => {
+//       res.sendStatus(201);
+//     })
+//     .catch((error) => {
+//       throw error;
+//     });
+// });
 
-app.post('/tetraflix/userRecs', (req, res) => {
-  updateRecs(req.body.userId, req.body.rec)
-    .then(() => {
-      client.index({
-        index: 'recs-data',
-        type: 'recs',
-        body: {
-          user: req.body.userId,
-          date: new Date(),
-        },
-      });
+const receiveUserRecs = () => {
+  let deleteId;
+  const userRecsOptions = {
+    QueueUrl: queues.sessionData,
+  };
+  receiveMessages(userRecsOptions)
+    .then((data) => {
+      if (!data || !data.Messages[0]) {
+        throw new Error('No messages to receive');
+      }
+      deleteId = data.Messages[0].ReceiptHandle;
+      console.log('DATA: ', data);
+      console.log('DELETE ID: ', deleteId);
+      // updateRecs(userId, rec)
     })
     .then(() => {
-      res.sendStatus(201);
+      // send data to kibana
     })
     .catch((error) => {
       throw error;
     });
-});
+};
+
+receiveUserRecs();
+
+// app.post('/tetraflix/userRecs', (req, res) => {
+//   updateRecs(req.body.userId, req.body.rec)
+//     .then(() => {
+//       client.index({
+//         index: 'recs-data',
+//         type: 'recs',
+//         body: {
+//           user: req.body.userId,
+//           date: new Date(),
+//         },
+//       });
+//     })
+//     .then(() => {
+//       res.sendStatus(201);
+//     })
+//     .catch((error) => {
+//       throw error;
+//     });
+// });
 
 app.get('/tetraflix/dummyData/movies', (req, res) => {
   pgDummyData();
