@@ -19,11 +19,8 @@ const queues = {
 const sendMessages = options => (
   new Promise((resolve, reject) => {
     sqs.sendMessage(options, (err, data) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(data);
-      }
+      if (err) reject(err);
+      else resolve(data);
     });
   })
 );
@@ -31,11 +28,8 @@ const sendMessages = options => (
 const receiveMessages = options => (
   new Promise((resolve, reject) => {
     sqs.receiveMessage(options, (err, data) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(data);
-      }
+      if (err) reject(err);
+      else resolve(data);
     });
   })
 );
@@ -105,37 +99,55 @@ app.get('/tetraflix/genre/:genre', (req, res) => {
     });
 });
 
-// app.post('/tetraflix/sessionData', (req, res) => {
-//   const { events } = req.body;
-//   const movies = [];
-//   events.forEach((event) => {
-//     movies.push([event.movie.id, event.progress]);
-//     if (event.progress === 1) {
-//       postgresDb.Movie.increment('views', { where: { id: event.movie.id } })
-//         .catch((err) => {
-//           throw err;
-//         });
-//     }
-//   });
-//   updateCW(req.body.userId, movies)
-//     .then(() => {
-//       client.index({
-//         index: 'session-data',
-//         type: 'session',
-//         body: {
-//           user: req.body.userId,
-//           movies: movies.length,
-//           date: new Date(),
-//         },
-//       });
-//     })
-//     .then(() => {
-//       res.sendStatus(201);
-//     })
-//     .catch((error) => {
-//       throw error;
-//     });
-// });
+const receiveSessionData = () => {
+  let deleteId;
+  let user;
+  const movies = [];
+  const sessionDataOptions = {
+    QueueUrl: queues.sessionData,
+  };
+  receiveMessages(sessionDataOptions)
+    .then((data) => {
+      if (!data || !data.Messages[0]) {
+        throw new Error('No messages to receive');
+      }
+      const message = JSON.parse(data.Messages[0].Body);
+      const { events } = message;
+      user = message.userId;
+      deleteId = data.Messages[0].ReceiptHandle;
+      events.forEach((event) => {
+        movies.push([event.movie.id, event.progress]);
+        if (event.progress === 1) {
+          postgresDb.Movie.increment('views', { where: { id: event.movie.id } })
+            .catch((err) => {
+              throw err;
+            });
+        }
+      });
+      return updateCW(user, movies);
+    })
+    .then(() => {
+      client.index({
+        index: 'session-data',
+        type: 'session',
+        body: {
+          user,
+          movies: movies.length,
+          date: new Date(),
+        },
+      });
+      const deleteOptions = {
+        QueueUrl: queues.sessionData,
+        ReceiptHandle: deleteId,
+      };
+      deleteMessage(deleteOptions);
+    })
+    .catch((error) => {
+      throw error;
+    });
+};
+
+receiveSessionData();
 
 const receiveUserRecs = () => {
   let deleteId;
@@ -172,6 +184,8 @@ const receiveUserRecs = () => {
       throw error;
     });
 };
+
+receiveUserRecs();
 
 app.get('/tetraflix/dummyData/movies', (req, res) => {
   pgDummyData();
