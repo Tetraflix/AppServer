@@ -1,4 +1,5 @@
 const postgresDb = require('../postgresDb/index.js');
+const dbStats = require('../dbStats.js');
 const fs = require('fs');
 
 const getMovieInfoById = arr => (
@@ -15,7 +16,7 @@ const userMovieObjs = [];
 const addUserMovies = () => {
   const ids = [];
   for (let i = 0; i < 40; i += 1) {
-    ids.push(Math.floor(Math.random() * 300000));
+    ids.push(Math.floor(Math.random() * dbStats.movies));
   }
   getMovieInfoById(ids)
     .then((results) => {

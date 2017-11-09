@@ -2,6 +2,7 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const postgresDb = require('../postgresDb/index.js');
 const mongoDb = require('../mongoDb/index.js');
+const dbStats = require('../dbStats.js');
 require('../server/index.js');
 
 const should = chai.should();
@@ -22,14 +23,12 @@ const genreArr = [
   'thriller',
   'western',
 ];
-const genre = Math.floor(Math.random() * 15);
-const id = Math.floor(Math.random() * 300000);
 
 chai.use(chaiHttp);
 
-
 describe('Personalized Recommendations', () => {
   it('should return recs and cw for a user', (done) => {
+    const id = Math.floor(Math.random() * dbStats.users);
     chai.request('http://localhost:3000')
       .get(`/tetraflix/recommendations/${id}`)
       .end((err, res) => {
@@ -46,6 +45,7 @@ describe('Personalized Recommendations', () => {
 
 describe('Genre Recommendations', () => {
   it('should return top genre recs', (done) => {
+    const genre = Math.floor(Math.random() * 15);
     chai.request('http://localhost:3000')
       .get(`/tetraflix/genre/${genreArr[genre]}`)
       .end((err, res) => {
@@ -60,7 +60,7 @@ describe('Genre Recommendations', () => {
 
 describe('View Count', () => {
   it('should update view count when progress equals one', (done) => {
-    const movieId = Math.floor(Math.random() * 300000);
+    const movieId = Math.floor(Math.random() * dbStats.movies);
     const getViews = `select views from movies where id = ${movieId}`;
     let viewsBefore;
     let viewsAfter;
@@ -71,7 +71,7 @@ describe('View Count', () => {
           .post('/tetraflix/sessionData')
           .set('content-type', 'application/json')
           .send({
-            userId: Math.floor(Math.random() * 1000000),
+            userId: Math.floor(Math.random() * dbStats.users),
             events: [{
               movie: {
                 id: movieId,
@@ -95,7 +95,7 @@ describe('View Count', () => {
   });
 
   it('should not update view count when progress is less than 1', (done) => {
-    const movieId = Math.floor(Math.random() * 300000);
+    const movieId = Math.floor(Math.random() * dbStats.movies);
     const getViews = `select views from movies where id = ${movieId}`;
     let viewsBefore;
     let viewsAfter;
@@ -106,7 +106,7 @@ describe('View Count', () => {
           .post('/tetraflix/sessionData')
           .set('content-type', 'application/json')
           .send({
-            userId: Math.floor(Math.random() * 1000000),
+            userId: Math.floor(Math.random() * dbStats.users),
             events: [{
               movie: {
                 id: movieId,
@@ -130,12 +130,12 @@ describe('View Count', () => {
   });
 
   it('should update view count for multiple movies', (done) => {
-    const rand = Math.floor(Math.random() * 100000);
+    const rand = Math.floor(Math.random() * (dbStats.movies / 3));
     const movie1 = rand;
-    const movie2 = rand + 100000;
-    const movie3 = rand + 200000;
+    const movie2 = rand + (dbStats.movies / 3);
+    const movie3 = rand + (dbStats.movies / 3);
     const sendObj = {
-      userId: Math.floor(Math.random() * 1000000),
+      userId: Math.floor(Math.random() * dbStats.users),
       events: [
         {
           movie: {
@@ -211,10 +211,10 @@ describe('View Count', () => {
 
 describe('Currently Watching Movie List', () => {
   it('should remove / not add finished movies from cw list', (done) => {
-    const rand = Math.floor(Math.random() * 100000);
-    const randUser = Math.floor(Math.random() * 1000000);
+    const rand = Math.floor(Math.random() * (dbStats.movies / 2));
+    const randUser = Math.floor(Math.random() * dbStats.users);
     const movie1 = rand;
-    const movie2 = rand + 100000;
+    const movie2 = rand + (dbStats.users / 2);
     const sendObj = {
       userId: randUser,
       events: [
@@ -257,10 +257,10 @@ describe('Currently Watching Movie List', () => {
   });
 
   it('should update progress / add movie when progress < 1', (done) => {
-    const rand = Math.floor(Math.random() * 100000);
-    const randUser = Math.floor(Math.random() * 1000000);
+    const rand = Math.floor(Math.random() * (dbStats.movies / 2));
+    const randUser = Math.floor(Math.random() * dbStats.users);
     const movie1 = rand;
-    const movie2 = rand + 100000;
+    const movie2 = rand + (dbStats.movies / 2);
     const sendObj = {
       userId: randUser,
       events: [
@@ -306,11 +306,11 @@ describe('Currently Watching Movie List', () => {
   });
 
   it('should contain 20 movies or fewer', (done) => {
-    const rand = Math.floor(Math.random() * 100000);
-    const randUser = Math.floor(Math.random() * 1000000);
+    const rand = Math.floor(Math.random() * (dbStats.movies / 3));
+    const randUser = Math.floor(Math.random() * dbStats.users);
     const movie1 = rand;
-    const movie2 = rand + 100000;
-    const movie3 = rand + 200000;
+    const movie2 = rand + (dbStats.movies / 3);
+    const movie3 = rand + (dbStats.movies / 3);
     const sendObj = {
       userId: randUser,
       events: [
@@ -362,10 +362,10 @@ describe('Currently Watching Movie List', () => {
 
 describe('Recommended Movie List', () => {
   it('should contain new recommendations', (done) => {
-    const randUser = Math.floor(Math.random() * 1000000);
+    const randUser = Math.floor(Math.random() * dbStats.users);
     const recMovies = [];
     for (let i = 0; i < 20; i += 1) {
-      recMovies.push(Math.floor(Math.random() * 300000));
+      recMovies.push(Math.floor(Math.random() * dbStats.movies));
     }
     const sendObj = {
       userId: randUser,
@@ -395,10 +395,10 @@ describe('Recommended Movie List', () => {
   });
 
   it('should contain 20 recommendations', (done) => {
-    const randUser = Math.floor(Math.random() * 1000000);
+    const randUser = Math.floor(Math.random() * dbStats.users);
     const recMovies = [];
     for (let i = 0; i < 20; i += 1) {
-      recMovies.push(Math.floor(Math.random() * 300000));
+      recMovies.push(Math.floor(Math.random() * dbStats.movies));
     }
     const sendObj = {
       userId: randUser,

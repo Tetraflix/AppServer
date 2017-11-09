@@ -17,9 +17,6 @@ if (process.env.DATABASE_URL) {
 
 movieDb
   .authenticate()
-  .then(() => {
-    // Successful connection to movies database
-  })
   .catch((err) => {
     throw err;
   });
