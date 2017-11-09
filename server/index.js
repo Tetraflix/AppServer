@@ -139,48 +139,39 @@ app.get('/tetraflix/genre/:genre', (req, res) => {
 
 const receiveUserRecs = () => {
   let deleteId;
+  let user;
   const userRecsOptions = {
-    QueueUrl: queues.sessionData,
+    QueueUrl: queues.userRecs,
   };
   receiveMessages(userRecsOptions)
     .then((data) => {
       if (!data || !data.Messages[0]) {
         throw new Error('No messages to receive');
       }
+      const recs = data.Messages[0].Body.rec;
       deleteId = data.Messages[0].ReceiptHandle;
-      console.log('DATA: ', data);
-      console.log('DELETE ID: ', deleteId);
-      // updateRecs(userId, rec)
+      user = data.Messages[0].Body.userId;
+      return updateRecs(user, recs);
     })
     .then(() => {
-      // send data to kibana
+      client.index({
+        index: 'recs-data',
+        type: 'recs',
+        body: {
+          user,
+          date: new Date(),
+        },
+      });
+      const deleteOptions = {
+        QueueUrl: queues.userRecs,
+        ReceiptHandle: deleteId,
+      };
+      deleteMessage(deleteOptions);
     })
     .catch((error) => {
       throw error;
     });
 };
-
-receiveUserRecs();
-
-// app.post('/tetraflix/userRecs', (req, res) => {
-//   updateRecs(req.body.userId, req.body.rec)
-//     .then(() => {
-//       client.index({
-//         index: 'recs-data',
-//         type: 'recs',
-//         body: {
-//           user: req.body.userId,
-//           date: new Date(),
-//         },
-//       });
-//     })
-//     .then(() => {
-//       res.sendStatus(201);
-//     })
-//     .catch((error) => {
-//       throw error;
-//     });
-// });
 
 app.get('/tetraflix/dummyData/movies', (req, res) => {
   pgDummyData();
