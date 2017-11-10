@@ -24,7 +24,7 @@ const updateRecs = (userId, recArr) =>
       return mongoDb.UserMovies.update({ _id: userId }, { $set: { recs: newRecs } }).exec();
     })
     .catch((err) => {
-      throw err;
+      console.log(err);
     });
 
 module.exports = updateRecs;

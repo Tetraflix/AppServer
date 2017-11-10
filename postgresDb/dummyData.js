@@ -89,6 +89,6 @@ module.exports = (i = 0) => {
       return i;
     })
     .catch((err) => {
-      throw err;
+      console.log(err);
     });
 };

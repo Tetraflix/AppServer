@@ -77,7 +77,7 @@ const updateGenreRecs = (genre) => {
       mongoDb.GenreRec.findOneAndUpdate(conditions, update, options).exec();
     })
     .catch((err) => {
-      throw err;
+      console.log(err);
     });
 };
 

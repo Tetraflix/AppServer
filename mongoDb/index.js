@@ -1,3 +1,4 @@
+
 const mongoose = require('mongoose');
 mongoose.Promise = require('bluebird');
 
@@ -6,7 +7,7 @@ mongoose.connect('mongodb://localhost/tetraflix');
 const db = mongoose.connection;
 
 db.on('error', (error) => {
-  throw error;
+  console.log(error);
 });
 
 db.once('open', () => {
