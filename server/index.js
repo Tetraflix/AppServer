@@ -73,7 +73,7 @@ app.get('/tetraflix/recommendations/:user', (req, res) => {
       res.send(result);
     })
     .catch((error) => {
-      throw error;
+      console.log(error);
     });
 });
 
@@ -96,7 +96,7 @@ app.get('/tetraflix/genre/:genre', (req, res) => {
       res.send(result);
     })
     .catch((error) => {
-      throw error;
+      console.log(error);
     });
 });
 
@@ -121,7 +121,7 @@ const receiveSessionData = () => {
           if (event.progress === 1) {
             postgresDb.Movie.increment('views', { where: { id: event.movie.id } })
               .catch((err) => {
-                throw err;
+                console.log(err);
               });
           }
         });

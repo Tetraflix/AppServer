@@ -64,7 +64,7 @@ const updateCW = (userId, movies) => {
       return mongoDb.UserMovies.update({ _id: userId }, { $set: { cw: CWList } }).exec();
     })
     .catch((err) => {
-      throw err;
+      console.log(err);
     });
 };
 

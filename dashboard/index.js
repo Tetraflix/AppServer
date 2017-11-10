@@ -8,7 +8,7 @@ client.ping({
   requestTimeout: 30000,
 }, (error) => {
   if (error) {
-    throw error;
+    console.log(error);
   }
 });
 

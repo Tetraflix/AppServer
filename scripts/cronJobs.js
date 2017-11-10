@@ -44,7 +44,7 @@ const processSessionData = () => {
   };
   server.sendMessages(options)
     .catch((err) => {
-      throw err;
+      console.log(err);
     });
 };
 
@@ -64,7 +64,7 @@ const updateUserRecs = () => {
   };
   server.sendMessages(options)
     .catch((err) => {
-      throw err;
+      console.log(err);
     });
 };
 
