@@ -109,23 +109,24 @@ const receiveSessionData = () => {
   };
   receiveMessages(sessionDataOptions)
     .then((data) => {
-      if (!data || !data.Messages[0]) {
+      if (!data || !data.Messages) {
         throw new Error('No messages to receive');
+      } else {
+        const message = JSON.parse(data.Messages[0].Body);
+        const { events } = message;
+        user = message.userId;
+        deleteId = data.Messages[0].ReceiptHandle;
+        events.forEach((event) => {
+          movies.push([event.movie.id, event.progress]);
+          if (event.progress === 1) {
+            postgresDb.Movie.increment('views', { where: { id: event.movie.id } })
+              .catch((err) => {
+                throw err;
+              });
+          }
+        });
+        return updateCW(user, movies);
       }
-      const message = JSON.parse(data.Messages[0].Body);
-      const { events } = message;
-      user = message.userId;
-      deleteId = data.Messages[0].ReceiptHandle;
-      events.forEach((event) => {
-        movies.push([event.movie.id, event.progress]);
-        if (event.progress === 1) {
-          postgresDb.Movie.increment('views', { where: { id: event.movie.id } })
-            .catch((err) => {
-              throw err;
-            });
-        }
-      });
-      return updateCW(user, movies);
     })
     .then(() => {
       client.index({
@@ -144,7 +145,7 @@ const receiveSessionData = () => {
       deleteMessage(deleteOptions);
     })
     .catch((error) => {
-      throw error;
+      console.log(error);
     });
 };
 
@@ -158,13 +159,14 @@ const receiveUserRecs = () => {
   };
   receiveMessages(userRecsOptions)
     .then((data) => {
-      if (!data || !data.Messages[0]) {
+      if (!data || !data.Messages) {
         throw new Error('No messages to receive');
+      } else {
+        const recs = data.Messages[0].Body.rec;
+        deleteId = data.Messages[0].ReceiptHandle;
+        user = data.Messages[0].Body.userId;
+        return updateRecs(user, recs);
       }
-      const recs = data.Messages[0].Body.rec;
-      deleteId = data.Messages[0].ReceiptHandle;
-      user = data.Messages[0].Body.userId;
-      return updateRecs(user, recs);
     })
     .then(() => {
       client.index({
@@ -182,7 +184,7 @@ const receiveUserRecs = () => {
       deleteMessage(deleteOptions);
     })
     .catch((error) => {
-      throw error;
+      console.log(error);
     });
 };
 
