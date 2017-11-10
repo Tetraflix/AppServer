@@ -8,6 +8,7 @@ const updateCW = require('../scripts/updateCW.js');
 const updateRecs = require('../scripts/updateRecs.js');
 const AWS = require('aws-sdk');
 const path = require('path');
+const cron = require('node-cron');
 
 AWS.config.loadFromPath(path.resolve(__dirname, './config.json'));
 const sqs = new AWS.SQS({ apiVersion: '2012-11-05' });
@@ -147,7 +148,7 @@ const receiveSessionData = () => {
     });
 };
 
-receiveSessionData();
+cron.schedule('*/1 * * * * *', receiveSessionData);
 
 const receiveUserRecs = () => {
   let deleteId;
@@ -185,7 +186,7 @@ const receiveUserRecs = () => {
     });
 };
 
-receiveUserRecs();
+cron.schedule('*/1 * * * * *', receiveUserRecs);
 
 app.get('/tetraflix/dummyData/movies', (req, res) => {
   pgDummyData();
