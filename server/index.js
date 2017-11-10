@@ -145,7 +145,7 @@ const receiveSessionData = () => {
       deleteMessage(deleteOptions);
     })
     .catch((error) => {
-      console.log(error);
+      // console.log(error);
     });
 };
 
@@ -184,7 +184,7 @@ const receiveUserRecs = () => {
       deleteMessage(deleteOptions);
     })
     .catch((error) => {
-      console.log(error);
+      // console.log(error);
     });
 };
 
@@ -193,6 +193,59 @@ cron.schedule('*/1 * * * * *', receiveUserRecs);
 app.get('/tetraflix/dummyData/movies', (req, res) => {
   pgDummyData();
   res.send('adding movies...');
+});
+
+// endpoints for testing that simulate receiving user recs and session data from sqs
+app.post('/tetraflix/sessionData', (req, res) => {
+  const { events } = req.body;
+  const movies = [];
+  events.forEach((event) => {
+    movies.push([event.movie.id, event.progress]);
+    if (event.progress === 1) {
+      postgresDb.Movie.increment('views', { where: { id: event.movie.id } })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  });
+  updateCW(req.body.userId, movies)
+    .then(() => {
+      client.index({
+        index: 'session-data',
+        type: 'session',
+        body: {
+          user: req.body.userId,
+          movies: movies.length,
+          date: new Date(),
+        },
+      });
+    })
+    .then(() => {
+      res.sendStatus(201);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+});
+
+app.post('/tetraflix/userRecs', (req, res) => {
+  updateRecs(req.body.userId, req.body.rec)
+    .then(() => {
+      client.index({
+        index: 'recs-data',
+        type: 'recs',
+        body: {
+          user: req.body.userId,
+          date: new Date(),
+        },
+      });
+    })
+    .then(() => {
+      res.sendStatus(201);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
 });
 
 module.exports = {
