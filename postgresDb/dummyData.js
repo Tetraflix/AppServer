@@ -1,12 +1,8 @@
 const movies = require('./index.js');
-
-
-// Helper functions for generating movie objects:
+const dbStats = require('../dbStats.js');
 
 const generateProfileValues = () => {
-  // number of genres to calculate values for (a value between 1 and 14)
   const genreNum = Math.floor(Math.random() * 13) + 1;
-  // generate number of random values equal that add up to 100
   const values = [];
   let total = 0;
   for (let i = 0; i < genreNum; i += 1) {
@@ -20,7 +16,6 @@ const generateProfileValues = () => {
     values[j] = newValue;
     newTotal += newValue;
   }
-  // add final value so that they add up to 100
   values.push(100 - newTotal);
   return values;
 };
@@ -72,7 +67,6 @@ const assignProfileValues = () => {
 };
 
 const generateString = () => {
-  // generate a random string of 20 characters to use as a title
   const chars = 'abcdefghijklmnopqrstuvywxz ';
   const title = [];
   for (let i = 0; i < 20; i += 1) {
@@ -81,14 +75,12 @@ const generateString = () => {
   return title.join('');
 };
 
-
-// Add movies to movie database
-
+// generate 300000 movies
 module.exports = (i = 0) => {
   movies.Movie.create({
     title: generateString(),
     profile: assignProfileValues(),
-    views: Math.floor(Math.random() * 1000000),
+    views: Math.floor(Math.random() * dbStats.users),
   })
     .then(() => {
       if (i < 300000) {
@@ -97,6 +89,6 @@ module.exports = (i = 0) => {
       return i;
     })
     .catch((err) => {
-      throw err;
+      console.log(err);
     });
 };

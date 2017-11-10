@@ -1,6 +1,7 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const mongoDb = require('../mongoDb/index.js');
+const dbStats = require('../dbStats.js');
 
 const should = chai.should();
 
@@ -23,7 +24,7 @@ const genreArr = [
   'thriller',
   'western',
 ];
-const id = Math.floor(Math.random() * 1000000);
+const id = Math.floor(Math.random() * dbStats.users);
 const genre = Math.floor(Math.random() * 15);
 
 describe('UserMovies', () => {

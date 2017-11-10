@@ -28,6 +28,10 @@ coverage
 
 # Credentials
 credentials.js
+config.json
+
+# Dummy Data
+*_output.json
 
 # Compiled Dirs (http://nodejs.org/api/addons.html)
 build/

@@ -1,19 +1,8 @@
-const mongoDb = require('./index.js');
 const postgresDb = require('../postgresDb/index.js');
+const dbStats = require('../dbStats.js');
+const fs = require('fs');
 
-// seed user movies table with users, recommended and currently watching movies
-
-// retrieve movie objects by id for recs list
-const generateRecs = arr => (
-  postgresDb.Movie.findAll({
-    where: {
-      id: arr,
-    },
-  })
-);
-
-// retrieve movie objects by id for cw list
-const generateCW = arr => (
+const getMovieInfoById = arr => (
   postgresDb.Movie.findAll({
     where: {
       id: arr,
@@ -22,71 +11,51 @@ const generateCW = arr => (
 );
 
 let counter = 0;
+const userMovieObjs = [];
 
 const addUserMovies = () => {
-  const movies1 = [];
-  const movies2 = [];
-  for (let i = 0; i < 20; i += 1) {
-    // small chance of duplicate movies okay for dummy data
-    movies1.push(Math.floor(Math.random() * 300000));
-    movies2.push(Math.floor(Math.random() * 300000));
+  const ids = [];
+  for (let i = 0; i < 40; i += 1) {
+    ids.push(Math.floor(Math.random() * dbStats.movies));
   }
-  Promise.all([generateRecs(movies1), generateCW(movies2)])
+  getMovieInfoById(ids)
     .then((results) => {
-      // format recs
-      const recs = results[0];
-      const newRecs = [];
-      recs.forEach((rec) => {
-        const recObj = rec.dataValues;
-        const prof = JSON.parse(recObj.profile);
-        const newRec = {
-          movieId: recObj.id,
-          title: recObj.title,
-          views: recObj.views,
-          progress: 0,
+      const movies = results.map((result, i) => {
+        const movie = result.dataValues;
+        const prog = i < 20 ? 0 : (Math.floor(Math.random() * 100)) / 100;
+        const prof = JSON.parse(movie.profile);
+        return {
+          movieId: movie.id,
+          title: movie.title,
+          views: movie.views,
+          progress: prog,
           profile: prof,
         };
-        newRecs.push(newRec);
       });
-      // format cw
-      const cws = results[1];
-      const newCWs = [];
-      cws.forEach((cw) => {
-        const cwObj = cw.dataValues;
-        const prof = JSON.parse(cwObj.profile);
-        const newCW = {
-          movieId: cwObj.id,
-          title: cwObj.title,
-          views: cwObj.views,
-          progress: (Math.floor(Math.random() * 100)) / 100,
-          profile: prof,
-        };
-        newCWs.push(newCW);
-      });
-      return [newRecs, newCWs];
-    })
-    .then((formattedData) => {
-      // create new userMovies object
-      const newUser = new mongoDb.UserMovies({
+      const recs = movies.slice(0, 20);
+      const cw = movies.slice(20, 40);
+      userMovieObjs.push({
         _id: counter,
-        recs: formattedData[0],
-        cw: formattedData[1],
+        recs,
+        cw,
       });
-      newUser.save((error) => {
-        if (error) {
-          throw error;
-        }
-      });
-    })
-    .then(() => {
-      counter += 1;
-      if (counter <= 1000000) {
+      if (counter < 100000) {
+        counter += 1;
         addUserMovies();
+      } else {
+        const wstream = fs.createWriteStream('usermovies0_output.json');
+        wstream.write('[');
+        userMovieObjs.forEach(obj => wstream.write(`${JSON.stringify(obj)},`));
+        wstream.end();
+        console.log('finished writing file: ');
       }
     })
     .catch((error) => {
-      throw error;
+      console.log(error);
     });
 };
 
-module.exports = addUserMovies;
+addUserMovies();
+
+// bash command for inserting files into mongo:
+// mongoimport --jsonArray --db tetraflix --collection usermovies --file ~/usermovies0_output.json;

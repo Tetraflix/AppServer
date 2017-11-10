@@ -1,6 +1,8 @@
 const cron = require('node-cron');
 const request = require('request');
 const genreRecs = require('./calculateGenreRecs.js');
+const dbStats = require('../dbStats.js');
+const server = require('../server/index.js');
 
 const genreArr = [
   'action',
@@ -25,55 +27,45 @@ const processSessionData = () => {
   for (let i = 0; i < 5; i += 1) {
     events.push({
       movie: {
-        id: Math.floor(Math.random() * 300000),
+        id: Math.floor(Math.random() * dbStats.movies),
       },
       progress: Math.floor(Math.random() * 100) / 100,
       timestamp: new Date(),
     });
   }
   const sessionData = {
-    userId: Math.floor(Math.random() * 1000000),
+    userId: Math.floor(Math.random() * dbStats.users),
     events,
   };
   const options = {
-    url: 'http://localhost:3000/tetraflix/sessionData',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    method: 'POST',
-    body: sessionData,
-    json: true,
+    MessageBody: JSON.stringify(sessionData),
+    QueueUrl: server.queues.sessionData,
+    MessageGroupId: 'sessionData',
   };
-  request(options, (error, response, body) => {
-    if (error) {
-      throw error;
-    }
-  });
+  server.sendMessages(options)
+    .catch((err) => {
+      console.log(err);
+    });
 };
 
 const updateUserRecs = () => {
   const recs = [];
   for (let i = 0; i < 20; i += 1) {
-    recs.push(Math.floor(Math.random() * 300000));
+    recs.push(Math.floor(Math.random() * dbStats.movies));
   }
   const recsData = {
-    userId: Math.floor(Math.random() * 1000000),
+    userId: Math.floor(Math.random() * dbStats.users),
     rec: recs,
   };
   const options = {
-    url: 'http://localhost:3000/tetraflix/userRecs',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    method: 'POST',
-    body: recsData,
-    json: true,
+    MessageBody: JSON.stringify(recsData),
+    QueueUrl: server.queues.userRecs,
+    MessageGroupId: 'userRecs',
   };
-  request(options, (error, response, body) => {
-    if (error) {
-      throw error;
-    }
-  });
+  server.sendMessages(options)
+    .catch((err) => {
+      console.log(err);
+    });
 };
 
 // CRON JOBS
@@ -85,7 +77,7 @@ cron.schedule('* 59 * * * *', genreRecs);
 cron.schedule('* * * * *', () => {
   const rand = Math.floor(Math.random() * 25) + 5;
   for (let i = 0; i < rand; i += 1) {
-    request.get(`http://localhost:3000/tetraflix/recommendations/${Math.floor(Math.random() * 1000000)}`);
+    request.get(`http://localhost:3000/tetraflix/recommendations/${Math.floor(Math.random() * dbStats.users)}`);
   }
 });
 
