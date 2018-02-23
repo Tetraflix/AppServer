@@ -1,5 +1,13 @@
 # AppServer
-Movie databases for Tetraflix
+* Part of the service oriented architecture for [Tetraflix](https://github.com/Tetraflix), a Netflix clone designed to answer the following business question: Among users who don’t leave ratings, do recommendations based on modeled user genre preferences outperform recommendations based on fixed genre preferences?**
+* Check out our detailed [App Plan](https://docs.google.com/document/d/1OU61yxLLce3VwlzlenJoszjRqrMK_5IwLJyzvuluo9w/edit?usp=sharing) of the whole system  
+
+## AppServer's role
+* Generate and manage inventory of 300,000 movies and genre profiles for each movie
+* store and update personalized recommendations for millions of users
+* calculate most popular movies by genre at regular intervals
+* serve requested movies to clients via a RESTful API
+* connect with [other services](https://github.com/Tetraflix) via Amazon SQS to process data asynchronously throughout the system
 
 ## Contributing
 Adhere to [airbnb style guide](https://github.com/airbnb/javascript).
