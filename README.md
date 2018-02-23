@@ -1,5 +1,7 @@
 # AppServer
-* Part of the service oriented architecture for [Tetraflix](https://github.com/Tetraflix), a Netflix clone designed to answer the following business question: Among users who don’t leave ratings, do recommendations based on modeled user genre preferences outperform recommendations based on fixed genre preferences?**
+
+## About
+* Part of the service oriented architecture for [Tetraflix](https://github.com/Tetraflix), a Netflix clone designed to answer the following business question: Among users who don’t leave ratings, do recommendations based on modeled user genre preferences outperform recommendations based on fixed genre preferences?
 * Check out our detailed [App Plan](https://docs.google.com/document/d/1OU61yxLLce3VwlzlenJoszjRqrMK_5IwLJyzvuluo9w/edit?usp=sharing) of the whole system  
 
 ## AppServer's role
@@ -13,55 +15,113 @@
 Adhere to [airbnb style guide](https://github.com/airbnb/javascript).
 See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
 
-# Table of Contents
+## Table of Contents
+1. [System Data Flow](##System-Data-Flow)
+1. [Requirements](##Requirements)
+1. [App Server Architecture](##App-Server-Architecture)
+1. [Schema Design](##Schema-Design)
+1. [I/O](##I/O)
 
-1. [Usage](#Usage)
-1. [Requirements](#Requirements)
-1. [Development](#Development)
-    1. [Installing Dependencies](#installing-dependencies)
-    1. [Tasks](#tasks)
-1. [About Tetraflix](#About)
-1. [Tetraflix Services](#Services)
-1. [Architecture Diagram](#Architecture)
-1. [Database Schema](#Schema)
-
-## Usage
-* Some usage instructions
+## System Data Flow
+![system design](https://github.com/Tetraflix/recommendations/blob/development/images/data-flow.jpeg)
 
 ## Requirements
-(list dependencies here e.g.)
 - Node 6.9.x
 - Postgresql 9.6.x
-- etc.
+- MongoDB 3.6.x
+- Elasticsearch 5.6.3
+- Kibana 5.6.3
 
-## Development
-* add notes for installing dependencies and tasks here
+## App Server Architecture
+![service architecture](https://github.com/Tetraflix/AppServer/blob/master/serviceArchitecture.jpg?raw=true)
 
-## About
-* Tetraflix is a minimal Netflix data-oriented clone.
-* AppServer works with other services to answer the following business question: 
-> Among users who don’t leave ratings, do recommendations based on modeled user genre preferences 
-> outperform recommendations based on fixed genre preferences?  
-* "Fixed genre preferences" refer to genre preferences set by a user upon signup. 
-* Control Group: Recommendations are generated from initially fixed genre preferences.
-* Experimental Group: Recommendations are generated from continually updated user genre preferences.
-* KPI: total ratio of recommended movies watched to total movies watched per test group per day
+## Schema Design
+![data base schema diagram](https://github.com/Tetraflix/AppServer/blob/master/dbSchema.png?raw=true)
 
-## Services
-### Events
-Processes user click activity in the browser to construct a timeline of that user’s activity during a session.
+## I/O
+**Inputs:**
+* Current recommendations for each user,
+  * Update user recommendations (fast db for serving client)
+```javascript
+{
+  userId: 534356757834,
+  rec: [23, 105, 765, 32, 479]
+} 
+```
+* Session data
+  * Update view count for each movie when progress = 1 (movie db)
+  * Periodically update genre recommendations based on view count (fast db for user recommendations)
+```javascript
+{
+  userId: 534356757834,
+  events: [
+    {
+      movie: {
+        id: 543,
+      },
+      progress: 1,
+      timestamp: 2017-09-08 12:50PM
+    }, {
+      movie: {
+        id: 155,
+      },
+      progress: 0.7,
+      timestamp: 2017-09-08 2:50PM
+    }
+  ]
+}
+```
 
-### User Profiles
-Interprets session data to constantly model and update user genre preferences for users in the experimental group.
-
-### Recommendations
-Feeds updated user genre preferences into an algorithm that matches the user with movies that have similar genre breakdowns
-
-### App Server
-Maintains a database of all Tetraflix movies and serves recommended and currently watching movies for a user and movies searched by genre to the client
-
-## Architecture
-* add architecture diagram / data flow here
-
-## Schema
-* add database schema here
+**Outputs:**
+* Current movie recommendations for a user and Serve up “continue watching” movies to client (change movie default progress from 0 to wherever they left off) (GET ‘/tetraflix/recommendations/:user’)
+```javascript
+{
+  recommendations: [
+    {
+      id: 8675309,
+      title:'Lord of the Rings',
+      profile: {[genre breakdown]},
+      progress: 0
+    },
+    {
+      id: 4879823,
+      title:'The Talented Mr.Ripley',
+      profile: {[genre breakdown]},
+      progress: 0
+    }
+  ],
+  currentlyWatching: [
+    {
+      id: 234523,
+      title:'Kahaani',
+      profile: {[genre breakdown]},
+      progress: 0.3
+    },
+    {
+      id: 857636,
+      title:'Memento',
+      profile: {[genre breakdown]},
+      progress: 0.7
+    }
+  ]
+} 
+```
+* Serve up movies by genre, sorted in order of popularity (GET ‘/tetraflix/genre/:genre’)
+```javascript
+{
+  genre: [
+    {
+      id: 34532,
+      title: 'Amelie',
+      profile: {[genre breakdown]},
+      progress: 0
+    },
+    {
+      id: 567490,
+      title: 'Star Wars',
+      profile: {[genre breakdown]},
+      progress: 0
+    }
+  ]
+}
+```
