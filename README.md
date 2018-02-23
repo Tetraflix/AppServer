@@ -15,13 +15,6 @@
 Adhere to [airbnb style guide](https://github.com/airbnb/javascript).
 See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
 
-## Table of Contents
-1. [System Data Flow](##System-Data-Flow)
-1. [Requirements](##Requirements)
-1. [App Server Architecture](##App-Server-Architecture)
-1. [Schema Design](##Schema-Design)
-1. [I/O](##I/O)
-
 ## System Data Flow
 ![system design](https://github.com/Tetraflix/recommendations/blob/development/images/data-flow.jpeg)
 
